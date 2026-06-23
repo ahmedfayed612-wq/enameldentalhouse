@@ -1,7 +1,8 @@
 import { useI18n } from "@/lib/i18n";
 import { CalendarCheck, MessageCircle } from "lucide-react";
+import { CLINIC } from "@/lib/availability";
 
-const WA_LINK = "https://wa.me/201000000000";
+const WA_LINK = `https://wa.me/${CLINIC.whatsapp}`;
 
 export function StickyMobileBar() {
   const { t } = useI18n();
@@ -10,7 +11,7 @@ export function StickyMobileBar() {
       <div className="mx-auto flex max-w-md items-center gap-2">
         <a
           href="#booking"
-          className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-deep px-4 py-3 text-sm font-semibold text-deep-foreground"
+          className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-deep px-4 py-3 text-sm font-semibold text-deep-foreground"
         >
           <CalendarCheck className="h-4 w-4" />
           {t("mobileBook")}
@@ -19,7 +20,7 @@ export function StickyMobileBar() {
           href={WA_LINK}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-primary bg-primary-soft px-4 py-3 text-sm font-semibold text-deep"
+          className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-primary bg-primary-soft px-4 py-3 text-sm font-semibold text-deep"
         >
           <MessageCircle className="h-4 w-4" />
           {t("mobileWa")}

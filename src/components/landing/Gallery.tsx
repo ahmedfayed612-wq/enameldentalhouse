@@ -2,7 +2,7 @@ import { useI18n } from "@/lib/i18n";
 
 export function Gallery() {
   const { t } = useI18n();
-  const slots = [0, 1, 2, 3, 4, 5];
+  const cases = [0, 1]; // trimmed to 2 cases per spec
   return (
     <section id="results" className="section-pad">
       <div className="container-page">
@@ -16,11 +16,11 @@ export function Gallery() {
           <p className="mt-3 text-base text-muted-foreground">{t("resultsSubtitle")}</p>
         </div>
 
-        <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5">
-          {slots.map((i) => (
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
+          {cases.map((i) => (
             <figure
               key={i}
-              className="card-soft group relative aspect-[4/5] overflow-hidden p-0"
+              className="card-soft group relative aspect-[4/3] overflow-hidden p-0 sm:aspect-[4/5]"
             >
               <div
                 aria-hidden
@@ -32,7 +32,7 @@ export function Gallery() {
               />
               <div className="relative flex h-full flex-col justify-between p-5">
                 <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-deep/70">
-                  <span>{t("resultsBefore")}</span>
+                  <span className="rounded-full bg-card/70 px-2 py-0.5">{t("resultsBefore")}</span>
                   <span className="rounded-full bg-card px-2 py-0.5">{t("resultsAfter")}</span>
                 </div>
                 <div className="text-xs text-deep/60">Case #{i + 1}</div>

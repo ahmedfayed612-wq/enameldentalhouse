@@ -11,6 +11,7 @@ import { Gallery } from "@/components/landing/Gallery";
 import { Doctor } from "@/components/landing/Doctor";
 import { Reviews } from "@/components/landing/Reviews";
 import { BookingForm } from "@/components/landing/BookingForm";
+import { VideoTestimonials } from "@/components/landing/VideoTestimonials";
 import { FAQ } from "@/components/landing/FAQ";
 import { Location } from "@/components/landing/Location";
 import { Footer } from "@/components/landing/Footer";
@@ -23,7 +24,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Premium family dentistry in Obour City. Transparent pricing, same-week appointments and a pain-free experience. Book your free consultation today.",
+          "Premium family dentistry in Obour City. Open every day except Friday, 12 PM – 10 PM. Transparent pricing, same-week appointments and a pain-free experience.",
       },
       { property: "og:title", content: "Enamel Dental House — Obour City" },
       {
@@ -52,18 +53,19 @@ function Page() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-24 md:pb-0">
       <Nav />
       <main>
         <Hero />
+        <Gallery />
+        <BookingForm />
+        <VideoTestimonials />
         <WhyEnamel />
         <Services />
-        <Gallery />
-        <Doctor />
-        <Reviews />
-        <BookingForm />
         <FAQ />
         <Location />
+        <Doctor />
+        <Reviews />
       </main>
       <Footer />
       <StickyMobileBar />
