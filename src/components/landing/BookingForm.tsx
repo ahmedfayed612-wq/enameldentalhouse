@@ -1,34 +1,44 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useBooking } from "@/lib/booking-store";
 import { trackLead } from "@/lib/analytics";
 import { SERVICE_OPTIONS } from "./Services";
-import { CheckCircle2 } from "lucide-react";
+import { Calendar } from "./Calendar";
+import { CheckCircle2, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
 import type { TKey } from "@/lib/translations";
+import {
+  CLINIC,
+  formatDateLabel,
+  formatSlotLabel,
+  generateSlots,
+  isSlotBooked,
+  ymd,
+} from "@/lib/availability";
 
 type FieldError = Partial<Record<"name" | "phone" | "service" | "date" | "time", TKey>>;
 
-// Egyptian mobile: 010/011/012/015 followed by 8 digits, optional +20 / 0020 prefix.
 const EG_PHONE = /^(?:\+?20|0020)?0?1[0125][0-9]{8}$/;
+const WA_LINK = `https://wa.me/${CLINIC.whatsapp}`;
 
 export function BookingForm() {
-  const { t, dir } = useI18n();
+  const { t, lang } = useI18n();
   const { preselectedService, clearService } = useBooking();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [service, setService] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState<Date | null>(null);
   const [time, setTime] = useState("");
   const [notes, setNotes] = useState("");
   const [errors, setErrors] = useState<FieldError>({});
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [waUrl, setWaUrl] = useState("");
 
   useEffect(() => {
     if (preselectedService) setService(preselectedService);
   }, [preselectedService]);
 
-  const today = new Date().toISOString().split("T")[0];
+  const slots = useMemo(() => generateSlots(), []);
 
   function validate(): FieldError {
     const e: FieldError = {};
@@ -53,18 +63,35 @@ export function BookingForm() {
         name: name.trim(),
         phone: phone.replace(/[\s-]/g, ""),
         service,
-        date,
+        date: date ? ymd(date) : "",
         time,
         notes: notes.trim(),
         submittedAt: new Date().toISOString(),
       };
-      // Local persistence until Lovable Cloud is enabled in Phase 2.
       if (typeof window !== "undefined") {
         const existing = JSON.parse(localStorage.getItem("enamel-bookings") || "[]");
         existing.unshift(payload);
         localStorage.setItem("enamel-bookings", JSON.stringify(existing));
       }
       trackLead({ service, value: 0, currency: "EGP" });
+
+      // Build WhatsApp confirmation message (auto-opens for the patient).
+      // TODO Phase 2: replace with WhatsApp Business API auto-send via Cloud function.
+      const dateLabel = date ? formatDateLabel(date, lang) : "";
+      const timeLabel = formatSlotLabel(time, lang);
+      const svcLabel = t(
+        (SERVICE_OPTIONS.find((s) => s.id === service)?.label as TKey) || "navBook",
+      );
+      const msg =
+        lang === "ar"
+          ? `تأكيد حجزك في إنامل دنتال هاوس\nالاسم: ${payload.name}\nالخدمة: ${svcLabel}\nالتاريخ: ${dateLabel}\nالساعة: ${timeLabel}\nهيوصلك تذكير قبل الموعد بيوم.`
+          : `Enamel Dental House — appointment confirmation\nName: ${payload.name}\nService: ${svcLabel}\nDate: ${dateLabel}\nTime: ${timeLabel}\nWe'll send a reminder the day before.`;
+      const url = `${WA_LINK}?text=${encodeURIComponent(msg)}`;
+      setWaUrl(url);
+      if (typeof window !== "undefined") {
+        // Open the confirmation immediately — same gesture as form submit.
+        window.open(url, "_blank", "noopener");
+      }
       setDone(true);
       clearService();
     } finally {
@@ -76,17 +103,18 @@ export function BookingForm() {
     setName("");
     setPhone("");
     setService("");
-    setDate("");
+    setDate(null);
     setTime("");
     setNotes("");
     setErrors({});
     setDone(false);
+    setWaUrl("");
   }
 
   return (
-    <section id="booking" className="section-pad">
-      <div className="container-page grid gap-10 md:grid-cols-[0.9fr_1.1fr]">
-        <div>
+    <section id="booking" className="section-pad bg-mint/30">
+      <div className="container-page">
+        <div className="mx-auto max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             {t("navBook")}
           </p>
@@ -94,126 +122,181 @@ export function BookingForm() {
             {t("bookTitle")}
           </h2>
           <p className="mt-3 text-base text-muted-foreground">{t("bookSubtitle")}</p>
-
-          <ul className="mt-8 space-y-3 text-sm text-muted-foreground">
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" />
-              {t("why4Body")}
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" />
-              {t("why3Body")}
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" />
-              {t("why2Body")}
-            </li>
-          </ul>
         </div>
 
-        <div className="card-soft p-6 md:p-8">
-          {done ? (
-            <div className="grid place-items-center py-10 text-center">
-              <span className="grid h-14 w-14 place-items-center rounded-full bg-primary text-deep">
-                <CheckCircle2 className="h-7 w-7" />
-              </span>
-              <h3 className="mt-5 text-xl font-semibold text-foreground">
-                {t("bookSuccessTitle")}
-              </h3>
-              <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                {t("bookSuccessBody")}
-              </p>
-              <button
-                onClick={reset}
-                className="mt-6 rounded-full border border-border bg-card px-5 py-2 text-sm font-medium text-foreground hover:bg-accent"
-              >
-                {t("bookSuccessAnother")}
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={onSubmit} noValidate className="space-y-4">
-              <Field label={t("fieldName")} error={errors.name ? t(errors.name) : undefined}>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder={t("fieldNamePh")}
-                  className={inputCls}
-                  autoComplete="name"
-                />
-              </Field>
+        <div className="mx-auto mt-8 max-w-2xl">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary-soft px-3 py-1.5 text-xs font-semibold text-deep">
+            <Sparkles className="h-3.5 w-3.5" />
+            {t("bookScarcity")}
+          </div>
 
-              <Field label={t("fieldPhone")} error={errors.phone ? t(errors.phone) : undefined}>
-                <input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder={t("fieldPhonePh")}
-                  className={inputCls}
-                  inputMode="tel"
-                  autoComplete="tel"
-                  dir="ltr"
-                />
-              </Field>
-
-              <Field label={t("fieldService")} error={errors.service ? t(errors.service) : undefined}>
-                <select
-                  value={service}
-                  onChange={(e) => setService(e.target.value)}
-                  className={inputCls}
-                  dir={dir}
+          <div className="card-soft overflow-hidden p-5 sm:p-7">
+            {done ? (
+              <div className="grid place-items-center py-8 text-center">
+                <span className="grid h-14 w-14 place-items-center rounded-full bg-primary text-deep">
+                  <CheckCircle2 className="h-7 w-7" />
+                </span>
+                <h3 className="mt-5 text-xl font-semibold text-foreground">
+                  {t("bookSuccessTitle")}
+                </h3>
+                <p className="mt-2 max-w-sm text-sm text-muted-foreground">{t("bookSuccessBody")}</p>
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-full bg-deep px-5 py-3 text-sm font-semibold text-deep-foreground"
                 >
-                  <option value="">{t("fieldServicePh")}</option>
-                  {SERVICE_OPTIONS.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {t(s.label)}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={t("fieldDate")} error={errors.date ? t(errors.date) : undefined}>
-                  <input
-                    type="date"
-                    value={date}
-                    min={today}
-                    onChange={(e) => setDate(e.target.value)}
-                    className={inputCls}
-                  />
-                </Field>
-                <Field label={t("fieldTime")} error={errors.time ? t(errors.time) : undefined}>
-                  <select
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
-                    className={inputCls}
-                    dir={dir}
-                  >
-                    <option value="">{t("fieldServicePh")}</option>
-                    <option value="morning">{t("timeMorning")}</option>
-                    <option value="afternoon">{t("timeAfternoon")}</option>
-                    <option value="evening">{t("timeEvening")}</option>
-                  </select>
-                </Field>
+                  <MessageCircle className="h-4 w-4" />
+                  {t("bookOpenWhatsapp")}
+                </a>
+                <button
+                  onClick={reset}
+                  className="mt-3 rounded-full border border-border bg-card px-5 py-2 text-sm font-medium text-foreground hover:bg-accent"
+                >
+                  {t("bookSuccessAnother")}
+                </button>
               </div>
+            ) : (
+              <form onSubmit={onSubmit} noValidate className="space-y-6">
+                {/* Step 1 — Date */}
+                <div>
+                  <h3 className="mb-3 text-sm font-semibold text-foreground">{t("bookStep1")}</h3>
+                  <Calendar
+                    value={date}
+                    onChange={(d) => {
+                      setDate(d);
+                      setTime("");
+                      setErrors((e) => ({ ...e, date: undefined }));
+                    }}
+                  />
+                  {errors.date && (
+                    <p className="mt-2 text-xs text-destructive">{t(errors.date)}</p>
+                  )}
+                </div>
 
-              <Field label={t("fieldNotes")}>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder={t("fieldNotesPh")}
-                  rows={3}
-                  className={inputCls + " resize-none"}
-                />
-              </Field>
+                {/* Step 2 — Time */}
+                <div>
+                  <h3 className="mb-3 text-sm font-semibold text-foreground">{t("bookStep2")}</h3>
+                  {!date ? (
+                    <p className="rounded-xl border border-dashed border-border bg-background/50 p-4 text-center text-xs text-muted-foreground">
+                      {t("bookStep2Hint")}
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                      {slots.map((s) => {
+                        const booked = isSlotBooked(date, s);
+                        const selected = time === s;
+                        return (
+                          <button
+                            key={s}
+                            type="button"
+                            disabled={booked}
+                            onClick={() => {
+                              setTime(s);
+                              setErrors((e) => ({ ...e, time: undefined }));
+                            }}
+                            className={[
+                              "relative min-h-12 rounded-xl border px-2 py-2 text-sm font-medium transition-colors",
+                              selected
+                                ? "border-deep bg-deep text-deep-foreground"
+                                : booked
+                                  ? "cursor-not-allowed border-border bg-muted text-muted-foreground/50 line-through"
+                                  : "border-border bg-background text-foreground hover:border-primary hover:bg-primary-soft",
+                            ].join(" ")}
+                          >
+                            <span dir="ltr">{formatSlotLabel(s, lang)}</span>
+                            {selected && (
+                              <CheckCircle2 className="absolute end-1 top-1 h-3.5 w-3.5" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {errors.time && (
+                    <p className="mt-2 text-xs text-destructive">{t(errors.time)}</p>
+                  )}
+                  <a
+                    href={WA_LINK}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-primary underline-offset-2 hover:underline"
+                  >
+                    <MessageCircle className="h-3.5 w-3.5" />
+                    {t("noTimeWhatsapp")}
+                  </a>
+                </div>
 
-              <button
-                type="submit"
-                disabled={submitting}
-                className="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-deep px-6 py-3.5 text-sm font-medium text-deep-foreground transition-opacity hover:opacity-95 disabled:opacity-60"
-              >
-                {submitting ? t("bookSubmitting") : t("bookSubmit")}
-              </button>
-            </form>
-          )}
+                {/* Step 3 — Details */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-foreground">{t("bookYourDetails")}</h3>
+
+                  <Field label={t("fieldName")} error={errors.name ? t(errors.name) : undefined}>
+                    <input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder={t("fieldNamePh")}
+                      className={inputCls}
+                      autoComplete="name"
+                    />
+                  </Field>
+
+                  <Field label={t("fieldPhone")} error={errors.phone ? t(errors.phone) : undefined}>
+                    <input
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder={t("fieldPhonePh")}
+                      className={inputCls}
+                      inputMode="tel"
+                      autoComplete="tel"
+                      dir="ltr"
+                    />
+                  </Field>
+
+                  <Field
+                    label={t("fieldService")}
+                    error={errors.service ? t(errors.service) : undefined}
+                  >
+                    <select
+                      value={service}
+                      onChange={(e) => setService(e.target.value)}
+                      className={inputCls}
+                    >
+                      <option value="">{t("fieldServicePh")}</option>
+                      {SERVICE_OPTIONS.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {t(s.label)}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+
+                  <Field label={t("fieldNotes")}>
+                    <textarea
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder={t("fieldNotesPh")}
+                      rows={2}
+                      className={inputCls + " resize-none"}
+                    />
+                  </Field>
+                </div>
+
+                <p className="flex items-start gap-2 rounded-xl bg-primary-soft/60 p-3 text-xs text-deep">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+                  {t("bookReassurance")}
+                </p>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-deep px-6 py-3.5 text-sm font-semibold text-deep-foreground transition-opacity hover:opacity-95 disabled:opacity-60"
+                >
+                  {submitting ? t("bookSubmitting") : t("bookSubmit")}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </div>
     </section>
@@ -221,7 +304,7 @@ export function BookingForm() {
 }
 
 const inputCls =
-  "w-full rounded-xl border border-input bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20";
+  "w-full min-h-12 rounded-xl border border-input bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20";
 
 function Field({
   label,
