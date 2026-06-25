@@ -72,8 +72,11 @@ const en = {
   doctorCred3: "Continuing education in implantology & cosmetic dentistry",
 
   reviewsTitle: "What our patients say",
-  reviewsSubtitle: "A selection of patient reviews. Live Google Reviews coming soon.",
-  reviewsPlaceholder: "Google Reviews widget will appear here.",
+  reviewsSubtitle: "Live reviews from our patients on Google.",
+  reviewsPlaceholder: "Loading Google reviews…",
+  reviewsError: "Couldn't load Google reviews right now.",
+  reviewsViewAll: "See all reviews on Google",
+  reviewsRatingSuffix: "on Google",
 
   videoTitle: "Stories from our patients",
   videoSubtitle: "Swipe to hear real patients share their experience at Enamel.",
@@ -226,8 +229,11 @@ const ar: typeof en = {
   doctorCred3: "تعليم مستمر في زراعة الأسنان وتجميلها",
 
   reviewsTitle: "آراء مرضانا",
-  reviewsSubtitle: "نماذج من آراء مرضانا. تقييمات جوجل المباشرة قريباً.",
-  reviewsPlaceholder: "هتظهر هنا تقييمات جوجل.",
+  reviewsSubtitle: "تقييمات مباشرة من مرضانا على جوجل.",
+  reviewsPlaceholder: "بنحمّل التقييمات…",
+  reviewsError: "مش قادرين نحمّل التقييمات دلوقتي.",
+  reviewsViewAll: "شوف كل التقييمات على جوجل",
+  reviewsRatingSuffix: "على جوجل",
 
   videoTitle: "حكاوي مرضانا",
   videoSubtitle: "اسحب لتشوف تجارب حقيقية من مرضانا في إنامل.",
