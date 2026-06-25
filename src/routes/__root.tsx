@@ -78,14 +78,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Enamel Dental House" },
+      { name: "description", content: "احجز موعدك في عيادة إنامل دنتال هاوس بمدينة العبور . كشف مجاني، أسعار واضحة، ومواعيد في نفس الأسبوع. تقييم 4.9 على جوجل من أكثر من 5,000 مريض." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Enamel Dental House" },
+      { property: "og:description", content: "احجز موعدك في عيادة إنامل دنتال هاوس بمدينة العبور . كشف مجاني، أسعار واضحة، ومواعيد في نفس الأسبوع. تقييم 4.9 على جوجل من أكثر من 5,000 مريض." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Enamel Dental House" },
+      { name: "twitter:description", content: "احجز موعدك في عيادة إنامل دنتال هاوس بمدينة العبور . كشف مجاني، أسعار واضحة، ومواعيد في نفس الأسبوع. تقييم 4.9 على جوجل من أكثر من 5,000 مريض." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/60e0c01b-1a9e-4898-b594-a57c53f5e99e/id-preview-fcc40e96--3535b467-eb9c-43cd-89c7-0835b01bda6e.lovable.app-1782383163502.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/60e0c01b-1a9e-4898-b594-a57c53f5e99e/id-preview-fcc40e96--3535b467-eb9c-43cd-89c7-0835b01bda6e.lovable.app-1782383163502.png" },
     ],
     links: [
       {
