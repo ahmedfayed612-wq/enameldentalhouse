@@ -12,4 +12,9 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Hard-pin the Vercel preset so the build targets Vercel's serverless
+  // runtime instead of the Cloudflare default Lovable forces.
+  nitro: {
+    preset: "vercel",
+  },
 });
