@@ -11,7 +11,7 @@ export function StickyMobileBar() {
       <div className="mx-auto flex max-w-md items-center gap-2">
         <a
           href="#booking"
-          className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-deep px-4 py-3 text-sm font-semibold text-deep-foreground"
+          className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)]"
         >
           <CalendarCheck className="h-4 w-4" />
           {t("mobileBook")}
