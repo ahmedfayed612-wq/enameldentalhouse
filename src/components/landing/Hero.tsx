@@ -58,8 +58,8 @@ export function Hero() {
           </div>
 
           <dl className="mt-8 grid max-w-lg grid-cols-3 gap-4 border-t border-border pt-6 sm:gap-6">
-            <Stat value="10+" label={t("trustYears")} />
-            <Stat value="5,000+" label={t("trustPatients")} />
+            <Stat value="12+" label={t("trustYears")} />
+            <Stat value="6,000+" label={t("trustPatients")} />
             <Stat value="4.9★" label={t("trustRating")} />
           </dl>
         </div>

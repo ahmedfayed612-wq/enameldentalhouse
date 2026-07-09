@@ -1,5 +1,6 @@
 import { useI18n } from "@/lib/i18n";
 import { GraduationCap, BadgeCheck, Award } from "lucide-react";
+import drPhoto from "@/assets/dr-mohamed-ibrahim.jpeg.asset.json";
 
 export function Doctor() {
   const { t } = useI18n();
@@ -18,13 +19,11 @@ export function Doctor() {
             className="absolute inset-0 -z-10 translate-x-4 translate-y-4 rounded-[2rem] bg-primary-soft"
           />
           <div className="card-soft aspect-[4/5] overflow-hidden p-0">
-            <div
-              className="h-full w-full"
-              style={{
-                background:
-                  "linear-gradient(160deg, color-mix(in oklab, var(--color-deep) 70%, transparent) 0%, color-mix(in oklab, var(--color-primary) 40%, var(--color-deep)) 100%)",
-              }}
-              aria-label="Doctor photo placeholder"
+            <img
+              src={drPhoto.url}
+              alt={t("doctorName")}
+              loading="lazy"
+              className="h-full w-full object-cover object-top"
             />
           </div>
         </div>

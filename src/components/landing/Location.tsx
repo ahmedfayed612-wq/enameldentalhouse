@@ -1,7 +1,7 @@
 import { useI18n } from "@/lib/i18n";
 import { MapPin, Clock, Phone, MessageCircle } from "lucide-react";
 
-const WA_LINK = "https://wa.me/201000000000";
+const WA_LINK = "https://wa.me/201000268550";
 
 export function Location() {
   const { t } = useI18n();

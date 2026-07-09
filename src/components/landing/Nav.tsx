@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { Globe, Menu, X } from "lucide-react";
 
-const WA_LINK = "https://wa.me/201000000000";
+const WA_LINK = "https://wa.me/201000268550";
 
 const navLinks: Array<{ key: "navWhy" | "navServices" | "navResults" | "navDoctor" | "navFaq" | "navContact"; href: string }> = [
   { key: "navWhy", href: "#why" },

@@ -7,8 +7,8 @@ export function SocialProofBar() {
     <section aria-label="social-proof" className="border-y border-border bg-primary-soft/40">
       <div className="container-page grid grid-cols-3 gap-3 py-5 md:py-6">
         <Item icon={<Star className="h-4 w-4 fill-primary text-primary" />} value="4.9★" label={t("trustRating")} />
-        <Item icon={<Users className="h-4 w-4 text-primary" />} value="5,000+" label={t("trustPatients")} />
-        <Item icon={<Award className="h-4 w-4 text-primary" />} value="10+" label={t("trustYears")} />
+        <Item icon={<Users className="h-4 w-4 text-primary" />} value="6,000+" label={t("trustPatients")} />
+        <Item icon={<Award className="h-4 w-4 text-primary" />} value="12+" label={t("trustYears")} />
       </div>
     </section>
   );
