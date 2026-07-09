@@ -63,8 +63,8 @@ const en = {
   resultsAfter: "After",
 
   doctorTitle: "Meet your dentist",
-  doctorName: "Dr. Ahmed Abdelrahman",
-  doctorRole: "Founder & Lead Dentist",
+  doctorName: "Dr. Mohamed Ibrahim Zaki",
+  doctorRole: "General Dentist & Oral Biologist",
   doctorBio:
     "With years of experience treating families in Obour City and Cairo, our lead doctor combines modern technique with a gentle, unhurried chairside manner. Every plan starts with listening to you.",
   doctorCred1: "BDS, Faculty of Dentistry",
@@ -143,7 +143,7 @@ const en = {
   locHoursLabel: "Working hours",
   locHours: "Sat – Thu: 12 PM – 10 PM · Friday: Closed",
   locPhoneLabel: "Phone",
-  locPhone: "+20 100 000 0000",
+  locPhone: "+20 100 026 8550",
   locWhatsapp: "WhatsApp Us",
   locMapPlaceholder: "Google Map will appear here.",
 
@@ -220,8 +220,8 @@ const ar: typeof en = {
   resultsAfter: "بعد",
 
   doctorTitle: "اتعرف على طبيبك",
-  doctorName: "د. أحمد عبد الرحمن",
-  doctorRole: "المؤسس وكبير أطباء الأسنان",
+  doctorName: "د. محمد إبراهيم زكي",
+  doctorRole: "طبيب أسنان عام وأخصائي بيولوجيا الفم",
   doctorBio:
     "بخبرة سنوات في علاج عائلات العبور والقاهرة، بيجمع طبيبنا بين أحدث التقنيات وأسلوب لطيف ومريح. كل خطة علاج بتبدأ بالاستماع لك أولاً.",
   doctorCred1: "بكالوريوس طب وجراحة الفم والأسنان",
@@ -300,7 +300,7 @@ const ar: typeof en = {
   locHoursLabel: "ساعات العمل",
   locHours: "السبت – الخميس: ١٢ ظهراً – ١٠ مساءً · الجمعة: مغلق",
   locPhoneLabel: "الموبايل",
-  locPhone: "+20 100 000 0000",
+  locPhone: "+20 100 026 8550",
   locWhatsapp: "تواصل واتساب",
   locMapPlaceholder: "هتظهر هنا خريطة جوجل.",
 

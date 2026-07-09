@@ -25,7 +25,7 @@ export const CLINIC = {
    */
   bookedSlots: {} as Record<string, string[]>,
 
-  whatsapp: "201000000000",
+  whatsapp: "201000268550",
 };
 
 export function ymd(date: Date): string {
