@@ -16,6 +16,7 @@ import { FAQ } from "@/components/landing/FAQ";
 import { Location } from "@/components/landing/Location";
 import { Footer } from "@/components/landing/Footer";
 import { StickyMobileBar } from "@/components/landing/StickyMobileBar";
+import { SocialProofBar } from "@/components/landing/SocialProofBar";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -57,15 +58,16 @@ function Page() {
       <Nav />
       <main>
         <Hero />
-        <Gallery />
-        <BookingForm />
-        <VideoTestimonials />
+        <SocialProofBar />
         <WhyEnamel />
-        <Services />
-        <FAQ />
-        <Location />
         <Doctor />
+        <BookingForm />
+        <Gallery />
+        <VideoTestimonials />
         <Reviews />
+        <Services />
+        <Location />
+        <FAQ />
       </main>
       <Footer />
       <StickyMobileBar />
