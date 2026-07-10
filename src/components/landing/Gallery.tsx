@@ -1,8 +1,16 @@
 import { useI18n } from "@/lib/i18n";
+import case1Before from "@/assets/case1-before.jpeg.asset.json";
+import case1After from "@/assets/case1-after.jpeg.asset.json";
+
+type Case = { before: string; after: string; label?: string };
+
+const CASES: Case[] = [
+  { before: case1Before.url, after: case1After.url },
+  // TODO: add second case when photos are available
+];
 
 export function Gallery() {
   const { t } = useI18n();
-  const cases = [0, 1]; // trimmed to 2 cases per spec
   return (
     <section id="results" className="section-pad">
       <div className="container-page">
@@ -17,26 +25,38 @@ export function Gallery() {
         </div>
 
         <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
-          {cases.map((i) => (
+          {CASES.map((c, i) => (
             <figure
               key={i}
-              className="card-soft group relative aspect-[4/3] overflow-hidden p-0 sm:aspect-[4/5]"
+              className="card-soft overflow-hidden p-0"
             >
-              <div
-                aria-hidden
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(135deg, color-mix(in oklab, var(--color-primary) 14%, var(--color-card)) 0%, color-mix(in oklab, var(--color-mint) 60%, var(--color-card)) 100%)",
-                }}
-              />
-              <div className="relative flex h-full flex-col justify-between p-5">
-                <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-deep/70">
-                  <span className="rounded-full bg-card/70 px-2 py-0.5">{t("resultsBefore")}</span>
-                  <span className="rounded-full bg-card px-2 py-0.5">{t("resultsAfter")}</span>
+              <div className="grid grid-cols-2">
+                <div className="relative aspect-[4/5]">
+                  <img
+                    src={c.before}
+                    alt={`${t("resultsBefore")} — Case ${i + 1}`}
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                  <span className="absolute top-2 left-2 rounded-full bg-card/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-deep">
+                    {t("resultsBefore")}
+                  </span>
                 </div>
-                <div className="text-xs text-deep/60">Case #{i + 1}</div>
+                <div className="relative aspect-[4/5]">
+                  <img
+                    src={c.after}
+                    alt={`${t("resultsAfter")} — Case ${i + 1}`}
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                  <span className="absolute top-2 right-2 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground">
+                    {t("resultsAfter")}
+                  </span>
+                </div>
               </div>
+              <figcaption className="flex items-center justify-between p-3 text-xs text-deep/70">
+                <span>Case #{i + 1}</span>
+              </figcaption>
             </figure>
           ))}
         </div>
