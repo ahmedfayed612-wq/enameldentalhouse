@@ -33,14 +33,18 @@ export function Location() {
           </a>
         </div>
 
-        {/* SLOT: drop the Google Maps embed iframe here. */}
         <div
           id="google-map-embed"
-          className="card-soft grid min-h-[280px] place-items-center overflow-hidden p-0"
+          className="card-soft min-h-[280px] overflow-hidden p-0"
         >
-          <div className="grid h-full w-full place-items-center bg-mint/40 p-10 text-sm text-muted-foreground">
-            {t("locMapPlaceholder")}
-          </div>
+          <iframe
+            title="Enamel Dental House location"
+            src="https://www.google.com/maps?q=place_id:ChIJoTgIQEAbWBQR_1Vma-gl1kA&hl=ar&z=16&output=embed"
+            className="h-full min-h-[280px] w-full border-0"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            allowFullScreen
+          />
         </div>
       </div>
     </section>
