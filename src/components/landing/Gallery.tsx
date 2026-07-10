@@ -1,12 +1,14 @@
 import { useI18n } from "@/lib/i18n";
 import case1Before from "@/assets/case1-before.jpeg.asset.json";
 import case1After from "@/assets/case1-after.jpeg.asset.json";
+import case2Before from "@/assets/case2-before.jpeg.asset.json";
+import case2After from "@/assets/case2-after.jpeg.asset.json";
 
-type Case = { before: string; after: string; label?: string };
+type Case = { before: string; after: string };
 
 const CASES: Case[] = [
   { before: case1Before.url, after: case1After.url },
-  // TODO: add second case when photos are available
+  { before: case2Before.url, after: case2After.url },
 ];
 
 export function Gallery() {
@@ -24,14 +26,11 @@ export function Gallery() {
           <p className="mt-3 text-base text-muted-foreground">{t("resultsSubtitle")}</p>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2">
           {CASES.map((c, i) => (
-            <figure
-              key={i}
-              className="card-soft overflow-hidden p-0"
-            >
-              <div className="grid grid-cols-2">
-                <div className="relative aspect-[4/5]">
+            <figure key={i} className="card-soft overflow-hidden p-0">
+              <div className="grid grid-cols-1">
+                <div className="relative aspect-[4/3]">
                   <img
                     src={c.before}
                     alt={`${t("resultsBefore")} — Case ${i + 1}`}
@@ -42,7 +41,7 @@ export function Gallery() {
                     {t("resultsBefore")}
                   </span>
                 </div>
-                <div className="relative aspect-[4/5]">
+                <div className="relative aspect-[4/3]">
                   <img
                     src={c.after}
                     alt={`${t("resultsAfter")} — Case ${i + 1}`}
