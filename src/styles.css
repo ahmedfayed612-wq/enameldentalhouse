@@ -1,0 +1,125 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+/* Fonts loaded in src/lib/fonts.ts (Tailwind v4 / Lightning CSS does not resolve node_modules via @import). */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-mint: var(--mint);
+  --color-deep: var(--deep);
+  --color-deep-foreground: var(--deep-foreground);
+
+  --font-sans: "Inter", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-arabic: "IBM Plex Sans Arabic", "Inter", system-ui, sans-serif;
+
+  --shadow-soft: 0 1px 2px 0 oklch(0.2 0.05 240 / 0.04), 0 8px 24px -8px oklch(0.2 0.05 240 / 0.08);
+  --shadow-elevated: 0 2px 4px 0 oklch(0.2 0.05 240 / 0.05), 0 20px 40px -16px oklch(0.2 0.05 240 / 0.16);
+}
+
+:root {
+  --radius: 1rem;
+
+  /* Enamel Dental House brand palette */
+  --background: #FFFFFF;
+  --foreground: #0F2A3D;
+  --card: #FFFFFF;
+  --card-foreground: #0F2A3D;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F2A3D;
+
+  --primary: #29ABE2;                              /* bright sky blue */
+  --primary-foreground: #FFFFFF;
+  --primary-soft: #D4EDDA;                         /* light mint */
+
+  --deep: #1A7FB5;                                 /* secondary dark blue */
+  --deep-foreground: #FFFFFF;
+
+  --mint: #D4EDDA;
+
+  --secondary: #EAF6FC;
+  --secondary-foreground: #1A7FB5;
+  --muted: #F4F8FB;
+  --muted-foreground: #547085;
+  --accent: #D4EDDA;
+  --accent-foreground: #1A7FB5;
+  --destructive: oklch(0.58 0.22 27);
+  --destructive-foreground: #FFFFFF;
+  --border: #E2EAF0;
+  --input: #E2EAF0;
+  --ring: #29ABE2;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  html[dir="rtl"] body {
+    font-family: var(--font-arabic);
+  }
+  h1, h2, h3, h4 {
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+}
+
+@utility container-page {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  max-width: 76rem;
+}
+
+@utility section-pad {
+  padding-block: 4rem;
+}
+
+@media (min-width: 768px) {
+  .section-pad { padding-block: 6rem; }
+}
+
+@utility card-soft {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-soft);
+}

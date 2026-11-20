@@ -1,0 +1,1 @@
+import{h as e}from"./index-BSCHeROF.js";import{t}from"./auth-BQq_uW7G.js";import{t as n}from"./jsx-runtime-DyZJNswf.js";var r=n();function i(){return(0,r.jsx)(t,{children:(0,r.jsx)(e,{})})}export{i as component};
