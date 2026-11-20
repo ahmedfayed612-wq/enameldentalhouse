@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+<<<<<<< HEAD
+=======
+import { useQuery } from "@tanstack/react-query";
+>>>>>>> 66f548b (Initial commit: Enamel Dental House Clinic Management System)
 import { useI18n } from "@/lib/i18n";
 import { useBooking } from "@/lib/booking-store";
 import { trackLead } from "@/lib/analytics";
@@ -6,6 +10,11 @@ import { SERVICE_OPTIONS } from "./Services";
 import { Calendar } from "./Calendar";
 import { CheckCircle2, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
 import type { TKey } from "@/lib/translations";
+<<<<<<< HEAD
+=======
+import { getDaySlots, submitBooking } from "@/lib/booking.functions";
+import { isSupabaseConfigured } from "@/lib/supabase";
+>>>>>>> 66f548b (Initial commit: Enamel Dental House Clinic Management System)
 import {
   CLINIC,
   formatDateLabel,
@@ -30,6 +39,10 @@ export function BookingForm() {
   const [time, setTime] = useState("");
   const [notes, setNotes] = useState("");
   const [errors, setErrors] = useState<FieldError>({});
+<<<<<<< HEAD
+=======
+  const [submitError, setSubmitError] = useState<TKey | null>(null);
+>>>>>>> 66f548b (Initial commit: Enamel Dental House Clinic Management System)
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [waUrl, setWaUrl] = useState("");
@@ -40,6 +53,20 @@ export function BookingForm() {
 
   const slots = useMemo(() => generateSlots(), []);
 
+<<<<<<< HEAD
+=======
+  // Real availability from the database (falls back to static grid when
+  // Supabase isn't configured or the request fails).
+  const dateKey = date ? ymd(date) : null;
+  const { data: slotData, refetch: refetchSlots } = useQuery({
+    queryKey: ["day-slots", dateKey],
+    queryFn: () => getDaySlots({ data: { date: dateKey! } }),
+    enabled: !!dateKey && isSupabaseConfigured,
+    staleTime: 30_000,
+  });
+  const availableSlots: Set<string> | null = slotData?.ok === true ? new Set(slotData.slots) : null;
+
+>>>>>>> 66f548b (Initial commit: Enamel Dental House Clinic Management System)
   function validate(): FieldError {
     const e: FieldError = {};
     if (name.trim().length < 2) e.name = "errName";
@@ -58,6 +85,10 @@ export function BookingForm() {
     if (Object.keys(e).length) return;
 
     setSubmitting(true);
+<<<<<<< HEAD
+=======
+    setSubmitError(null);
+>>>>>>> 66f548b (Initial commit: Enamel Dental House Clinic Management System)
     try {
       const payload = {
         name: name.trim(),
@@ -68,6 +99,26 @@ export function BookingForm() {
         notes: notes.trim(),
         submittedAt: new Date().toISOString(),
       };
+<<<<<<< HEAD
+=======
+
+      // Persist to the database when configured; the DB function validates,
+      // dedupes the patient by phone and rejects taken slots atomically.
+      if (isSupabaseConfigured) {
+        const res = await submitBooking({ data: payload });
+        if (!res.ok) {
+          if (res.error === "slot_unavailable") {
+            setSubmitError("errSlotTaken");
+            setTime("");
+            refetchSlots();
+          } else {
+            setSubmitError("errBooking");
+          }
+          return;
+        }
+      }
+
+>>>>>>> 66f548b (Initial commit: Enamel Dental House Clinic Management System)
       if (typeof window !== "undefined") {
         const existing = JSON.parse(localStorage.getItem("enamel-bookings") || "[]");
         existing.unshift(payload);
@@ -107,6 +158,10 @@ export function BookingForm() {
     setTime("");
     setNotes("");
     setErrors({});
+<<<<<<< HEAD
+=======
+    setSubmitError(null);
+>>>>>>> 66f548b (Initial commit: Enamel Dental House Clinic Management System)
     setDone(false);
     setWaUrl("");
   }
@@ -139,7 +194,13 @@ export function BookingForm() {
                 <h3 className="mt-5 text-xl font-semibold text-foreground">
                   {t("bookSuccessTitle")}
                 </h3>
+<<<<<<< HEAD
                 <p className="mt-2 max-w-sm text-sm text-muted-foreground">{t("bookSuccessBody")}</p>
+=======
+                <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+                  {t("bookSuccessBody")}
+                </p>
+>>>>>>> 66f548b (Initial commit: Enamel Dental House Clinic Management System)
                 <a
                   href={waUrl}
                   target="_blank"
@@ -169,9 +230,13 @@ export function BookingForm() {
                       setErrors((e) => ({ ...e, date: undefined }));
                     }}
                   />
+<<<<<<< HEAD
                   {errors.date && (
                     <p className="mt-2 text-xs text-destructive">{t(errors.date)}</p>
                   )}
+=======
+                  {errors.date && <p className="mt-2 text-xs text-destructive">{t(errors.date)}</p>}
+>>>>>>> 66f548b (Initial commit: Enamel Dental House Clinic Management System)
                 </div>
 
                 {/* Step 2 — Time */}
@@ -184,7 +249,15 @@ export function BookingForm() {
                   ) : (
                     <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                       {slots.map((s) => {
+<<<<<<< HEAD
                         const booked = isSlotBooked(date, s);
+=======
+                        const booked = date
+                          ? availableSlots
+                            ? !availableSlots.has(s)
+                            : isSlotBooked(date, s)
+                          : false;
+>>>>>>> 66f548b (Initial commit: Enamel Dental House Clinic Management System)
                         const selected = time === s;
                         return (
                           <button
@@ -213,9 +286,13 @@ export function BookingForm() {
                       })}
                     </div>
                   )}
+<<<<<<< HEAD
                   {errors.time && (
                     <p className="mt-2 text-xs text-destructive">{t(errors.time)}</p>
                   )}
+=======
+                  {errors.time && <p className="mt-2 text-xs text-destructive">{t(errors.time)}</p>}
+>>>>>>> 66f548b (Initial commit: Enamel Dental House Clinic Management System)
                   <a
                     href={WA_LINK}
                     target="_blank"
@@ -282,6 +359,15 @@ export function BookingForm() {
                   </Field>
                 </div>
 
+<<<<<<< HEAD
+=======
+                {submitError && (
+                  <p className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive">
+                    {t(submitError)}
+                  </p>
+                )}
+
+>>>>>>> 66f548b (Initial commit: Enamel Dental House Clinic Management System)
                 <p className="flex items-start gap-2 rounded-xl bg-primary-soft/60 p-3 text-xs text-deep">
                   <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
                   {t("bookReassurance")}
