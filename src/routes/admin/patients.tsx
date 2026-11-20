@@ -31,6 +31,24 @@ type ApptRow = {
   services: { name_en: string; name_ar: string | null } | null;
 };
 
+type TreatmentPlan = {
+  id: string;
+  title: string;
+  status: "active" | "completed" | "archived";
+  notes: string | null;
+  created_at: string;
+};
+
+type PlanItem = {
+  id: string;
+  plan_id: string;
+  description: string;
+  tooth: string | null;
+  status: "planned" | "in_progress" | "done" | "skipped";
+  estimated_price: number | null;
+  sort_order: number;
+};
+
 const inputCls =
   "w-full min-h-11 rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20";
 
@@ -181,6 +199,8 @@ function PatientsInner() {
                   </p>
                 </div>
               </div>
+
+              <TreatmentPlans patientId={selected.id} />
 
               <div>
                 <h3 className="mb-2 text-sm font-semibold text-foreground">Recent appointments</h3>
