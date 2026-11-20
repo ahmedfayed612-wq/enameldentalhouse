@@ -28,10 +28,7 @@ const en = {
   slotOneLeft: "1 slot left",
   slotBooked: "Booked",
   clinicClosedToday: "Clinic closed today — see you tomorrow.",
-<<<<<<< HEAD
-=======
   bookedOutToday: "Fully booked today — message us on WhatsApp.",
->>>>>>> 66f548b (Initial commit: Enamel Dental House Clinic Management System)
   ctaReserveSlot: "Reserve a slot",
 
   whyTitle: "Care you can actually feel.",
@@ -120,11 +117,8 @@ const en = {
   errService: "Choose a service.",
   errDate: "Pick a date.",
   errTime: "Choose a time slot.",
-<<<<<<< HEAD
-=======
   errSlotTaken: "That time slot was just booked — please pick another.",
   errBooking: "Booking failed — please try again or message us on WhatsApp.",
->>>>>>> 66f548b (Initial commit: Enamel Dental House Clinic Management System)
 
   calMonths_long: "January,February,March,April,May,June,July,August,September,October,November,December",
   calWeekdaysShort: "Sun,Mon,Tue,Wed,Thu,Fri,Sat",
@@ -194,10 +188,7 @@ const ar: typeof en = {
   slotOneLeft: "متبقي مكان واحد",
   slotBooked: "محجوز",
   clinicClosedToday: "العيادة مغلقة اليوم — نراكم غداً.",
-<<<<<<< HEAD
-=======
   bookedOutToday: "كل مواعيد النهارده محجوزة — كلمنا على واتساب.",
->>>>>>> 66f548b (Initial commit: Enamel Dental House Clinic Management System)
   ctaReserveSlot: "احجز الموعد",
 
   whyTitle: "رعاية تحس بيها فعلاً.",
@@ -285,11 +276,8 @@ const ar: typeof en = {
   errService: "اختر الخدمة.",
   errDate: "اختر التاريخ.",
   errTime: "اختر الميعاد.",
-<<<<<<< HEAD
-=======
   errSlotTaken: "المعاد ده اتحجز دلوقتي — اختار ميعاد تاني.",
   errBooking: "حصلت مشكلة في الحجز — حاول تاني أو كلمنا على واتساب.",
->>>>>>> 66f548b (Initial commit: Enamel Dental House Clinic Management System)
 
   calMonths_long:
     "يناير,فبراير,مارس,أبريل,مايو,يونيو,يوليو,أغسطس,سبتمبر,أكتوبر,نوفمبر,ديسمبر",
