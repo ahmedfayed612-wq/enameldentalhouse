@@ -73,8 +73,7 @@ export function formatSlotLabel(time: string, lang: "ar" | "en"): string {
     const h12 = h % 12 === 0 ? 12 : h % 12;
     const mm = m === 0 ? "" : `:${String(m).padStart(2, "0")}`;
     // Arabic-Indic digits
-    const toAr = (s: string) =>
-      s.replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
+    const toAr = (s: string) => s.replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
     return toAr(`${h12}${mm}`) + " " + period;
   }
   const period = h < 12 ? "AM" : "PM";

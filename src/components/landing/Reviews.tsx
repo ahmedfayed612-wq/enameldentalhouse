@@ -28,7 +28,8 @@ export function Reviews() {
         if (active) setData(res);
       })
       .catch(() => {
-        if (active) setData({ rating: null, total: null, reviews: [], url: null, error: "fetch_failed" });
+        if (active)
+          setData({ rating: null, total: null, reviews: [], url: null, error: "fetch_failed" });
       })
       .finally(() => active && setLoading(false));
     return () => {

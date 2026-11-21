@@ -24,7 +24,8 @@ export function Calendar({ value, onChange }: Props) {
     const daysInMonth = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
     const arr: (Date | null)[] = [];
     for (let i = 0; i < startOffset; i++) arr.push(null);
-    for (let d = 1; d <= daysInMonth; d++) arr.push(new Date(view.getFullYear(), view.getMonth(), d));
+    for (let d = 1; d <= daysInMonth; d++)
+      arr.push(new Date(view.getFullYear(), view.getMonth(), d));
     while (arr.length % 7 !== 0) arr.push(null);
     return arr;
   }, [view]);
@@ -49,7 +50,8 @@ export function Calendar({ value, onChange }: Props) {
           <Prev className="h-4 w-4" />
         </button>
         <div className="text-sm font-semibold text-foreground">
-          {months[view.getMonth()]} {view.toLocaleDateString(lang === "ar" ? "ar-EG" : "en-GB", { year: "numeric" })}
+          {months[view.getMonth()]}{" "}
+          {view.toLocaleDateString(lang === "ar" ? "ar-EG" : "en-GB", { year: "numeric" })}
         </div>
         <button
           type="button"
@@ -63,7 +65,9 @@ export function Calendar({ value, onChange }: Props) {
 
       <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
         {weekdays.map((w) => (
-          <div key={w} className="py-1">{w}</div>
+          <div key={w} className="py-1">
+            {w}
+          </div>
         ))}
       </div>
 

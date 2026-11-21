@@ -3,6 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
   CalendarDays,
   ClipboardList,
+  Hourglass,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -18,12 +19,13 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, soon: false },
+  { to: "/admin/waiting-room", label: "Waiting Room", icon: Hourglass, soon: false },
   { to: "/admin/appointments", label: "Appointments", icon: CalendarDays, soon: false },
-  { to: "/admin/patients", label: "Patients", icon: Users, soon: true },
-  { to: "/admin/billing", label: "Billing", icon: Receipt, soon: true },
-  { to: "/admin/expenses", label: "Expenses", icon: Wallet, soon: true },
-  { to: "/admin/reports", label: "Reports", icon: ClipboardList, soon: true },
-  { to: "/admin/settings", label: "Settings", icon: Settings, soon: true },
+  { to: "/admin/patients", label: "Patients", icon: Users, soon: false },
+  { to: "/admin/billing", label: "Billing", icon: Receipt, soon: false },
+  { to: "/admin/expenses", label: "Expenses", icon: Wallet, soon: false },
+  { to: "/admin/reports", label: "Reports", icon: ClipboardList, soon: false },
+  { to: "/admin/settings", label: "Settings", icon: Settings, soon: false },
 ] as const;
 
 export function AdminShell({ children }: { children: ReactNode }) {

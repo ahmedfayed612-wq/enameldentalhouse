@@ -1,14 +1,6 @@
 import { useI18n } from "@/lib/i18n";
 import { useBooking } from "@/lib/booking-store";
-import {
-  Stethoscope,
-  Sparkles,
-  Smile,
-  Anchor,
-  Wand2,
-  Siren,
-  ArrowUpRight,
-} from "lucide-react";
+import { Stethoscope, Sparkles, Smile, Anchor, Wand2, Siren, ArrowUpRight } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { TKey } from "@/lib/translations";
 

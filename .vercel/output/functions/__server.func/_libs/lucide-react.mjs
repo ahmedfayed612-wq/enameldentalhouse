@@ -489,6 +489,30 @@ var GraduationCap = createLucideIcon("graduation-cap", [
 * This source code is licensed under the ISC license.
 * See the LICENSE file in the root directory of this source tree.
 */
+var Hourglass = createLucideIcon("hourglass", [
+	["path", {
+		d: "M5 22h14",
+		key: "ehvnwv"
+	}],
+	["path", {
+		d: "M5 2h14",
+		key: "pdyrp9"
+	}],
+	["path", {
+		d: "M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22",
+		key: "1d314k"
+	}],
+	["path", {
+		d: "M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2",
+		key: "1vvvr6"
+	}]
+]);
+/**
+* @license lucide-react v0.575.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
 var Instagram = createLucideIcon("instagram", [
 	["rect", {
 		width: "20",
@@ -667,6 +691,26 @@ var Receipt = createLucideIcon("receipt", [
 	["path", {
 		d: "M12 17.5v-11",
 		key: "1jc1ny"
+	}]
+]);
+/**
+* @license lucide-react v0.575.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var Save = createLucideIcon("save", [
+	["path", {
+		d: "M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z",
+		key: "1c8476"
+	}],
+	["path", {
+		d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7",
+		key: "1ydtos"
+	}],
+	["path", {
+		d: "M7 3v4a1 1 0 0 0 1 1h7",
+		key: "t51u73"
 	}]
 ]);
 /**
@@ -856,6 +900,79 @@ var Stethoscope = createLucideIcon("stethoscope", [
 * This source code is licensed under the ISC license.
 * See the LICENSE file in the root directory of this source tree.
 */
+var Trash2 = createLucideIcon("trash-2", [
+	["path", {
+		d: "M10 11v6",
+		key: "nco0om"
+	}],
+	["path", {
+		d: "M14 11v6",
+		key: "outv1u"
+	}],
+	["path", {
+		d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6",
+		key: "miytrc"
+	}],
+	["path", {
+		d: "M3 6h18",
+		key: "d0wm0j"
+	}],
+	["path", {
+		d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2",
+		key: "e791ji"
+	}]
+]);
+/**
+* @license lucide-react v0.575.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var TrendingUp = createLucideIcon("trending-up", [["path", {
+	d: "M16 7h6v6",
+	key: "box55l"
+}], ["path", {
+	d: "m22 7-8.5 8.5-5-5L2 17",
+	key: "1t1m79"
+}]]);
+/**
+* @license lucide-react v0.575.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var UserPlus = createLucideIcon("user-plus", [
+	["path", {
+		d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2",
+		key: "1yyitq"
+	}],
+	["circle", {
+		cx: "9",
+		cy: "7",
+		r: "4",
+		key: "nufk8"
+	}],
+	["line", {
+		x1: "19",
+		x2: "19",
+		y1: "8",
+		y2: "14",
+		key: "1bvyxn"
+	}],
+	["line", {
+		x1: "22",
+		x2: "16",
+		y1: "11",
+		y2: "11",
+		key: "1shjgl"
+	}]
+]);
+/**
+* @license lucide-react v0.575.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
 var Users = createLucideIcon("users", [
 	["path", {
 		d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2",
@@ -942,4 +1059,4 @@ var X = createLucideIcon("x", [["path", {
 	d: "m6 6 12 12",
 	key: "d8bk6v"
 }]]);
-export { ChevronUp as A, ArrowUpRight as B, GraduationCap as C, ClipboardList as D, Clock as E, CalendarDays as F, Anchor as H, CalendarCheck as I, BadgeDollarSign as L, ChevronLeft as M, ChevronDown as N, CircleCheck as O, Check as P, BadgeCheck as R, Instagram as S, Facebook as T, ArrowRight as V, MessageCircle as _, Stethoscope as a, LogOut as b, Smile as c, Settings as d, Search as f, Phone as g, Play as h, Users as i, ChevronRight as j, CircleAlert as k, Siren as l, Plus as m, WandSparkles as n, Star as o, Receipt as p, Wallet as r, Sparkles as s, X as t, ShieldCheck as u, Menu as v, Globe as w, LayoutDashboard as x, MapPin as y, Award as z };
+export { Facebook as A, CalendarDays as B, MapPin as C, Hourglass as D, Instagram as E, ChevronUp as F, ArrowUpRight as G, BadgeDollarSign as H, ChevronRight as I, ArrowRight as K, ChevronLeft as L, ClipboardList as M, CircleCheck as N, GraduationCap as O, CircleAlert as P, ChevronDown as R, Menu as S, LayoutDashboard as T, BadgeCheck as U, CalendarCheck as V, Award as W, Receipt as _, UserPlus as a, Phone as b, Stethoscope as c, Smile as d, Siren as f, Save as g, Search as h, Users as i, Clock as j, Globe as k, Star as l, Settings as m, WandSparkles as n, TrendingUp as o, ShieldCheck as p, Anchor as q, Wallet as r, Trash2 as s, X as t, Sparkles as u, Plus as v, LogOut as w, MessageCircle as x, Play as y, Check as z };

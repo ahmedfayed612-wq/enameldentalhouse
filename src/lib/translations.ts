@@ -120,7 +120,8 @@ const en = {
   errSlotTaken: "That time slot was just booked — please pick another.",
   errBooking: "Booking failed — please try again or message us on WhatsApp.",
 
-  calMonths_long: "January,February,March,April,May,June,July,August,September,October,November,December",
+  calMonths_long:
+    "January,February,March,April,May,June,July,August,September,October,November,December",
   calWeekdaysShort: "Sun,Mon,Tue,Wed,Thu,Fri,Sat",
   calPrev: "Previous month",
   calNext: "Next month",
@@ -132,13 +133,16 @@ const en = {
   faq2Q: "Are your prices transparent?",
   faq2A: "Yes — we provide a written quote before any treatment begins, with no hidden fees.",
   faq3Q: "Do you accept insurance?",
-  faq3A: "We work with most major Egyptian insurance providers. Bring your card and we'll verify coverage.",
+  faq3A:
+    "We work with most major Egyptian insurance providers. Bring your card and we'll verify coverage.",
   faq4Q: "What should I bring to my first visit?",
-  faq4A: "A valid ID, any previous X-rays or dental records, and a list of medications you're taking.",
+  faq4A:
+    "A valid ID, any previous X-rays or dental records, and a list of medications you're taking.",
   faq5Q: "What payment options do you accept?",
   faq5A: "Cash, all major debit and credit cards, and instalment plans for larger treatments.",
   faq6Q: "What is your cancellation policy?",
-  faq6A: "Please let us know at least 24 hours in advance so we can offer the slot to someone else.",
+  faq6A:
+    "Please let us know at least 24 hours in advance so we can offer the slot to someone else.",
 
   locTitle: "Visit the clinic",
   locAddressLabel: "Address",
@@ -267,8 +271,7 @@ const ar: typeof en = {
   bookSubmit: "أكد موعدي",
   bookSubmitting: "جاري الإرسال…",
   bookSuccessTitle: "تم تأكيد موعدك!",
-  bookSuccessBody:
-    "هنفتح لك واتساب دلوقتي عشان تستلم تأكيد مكتوب. هيوصلك تذكير قبل الموعد بيوم.",
+  bookSuccessBody: "هنفتح لك واتساب دلوقتي عشان تستلم تأكيد مكتوب. هيوصلك تذكير قبل الموعد بيوم.",
   bookSuccessAnother: "احجز موعد تاني",
   bookOpenWhatsapp: "افتح تأكيد واتساب",
   errName: "من فضلك اكتب اسمك بالكامل.",
@@ -279,8 +282,7 @@ const ar: typeof en = {
   errSlotTaken: "المعاد ده اتحجز دلوقتي — اختار ميعاد تاني.",
   errBooking: "حصلت مشكلة في الحجز — حاول تاني أو كلمنا على واتساب.",
 
-  calMonths_long:
-    "يناير,فبراير,مارس,أبريل,مايو,يونيو,يوليو,أغسطس,سبتمبر,أكتوبر,نوفمبر,ديسمبر",
+  calMonths_long: "يناير,فبراير,مارس,أبريل,مايو,يونيو,يوليو,أغسطس,سبتمبر,أكتوبر,نوفمبر,ديسمبر",
   calWeekdaysShort: "أحد,اثنين,ثلاثاء,أربعاء,خميس,جمعة,سبت",
   calPrev: "الشهر السابق",
   calNext: "الشهر التالي",

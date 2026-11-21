@@ -38,8 +38,7 @@ export const getGoogleReviews = createServerFn({ method: "GET" }).handler(
         headers: {
           Authorization: `Bearer ${lovableKey}`,
           "X-Connection-Api-Key": mapsKey,
-          "X-Goog-FieldMask":
-            "id,displayName,rating,userRatingCount,googleMapsUri,reviews",
+          "X-Goog-FieldMask": "id,displayName,rating,userRatingCount,googleMapsUri,reviews",
         },
       });
 

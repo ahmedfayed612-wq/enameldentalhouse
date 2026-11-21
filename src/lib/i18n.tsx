@@ -14,7 +14,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("ar");
 
   useEffect(() => {
-    const stored = (typeof window !== "undefined" && localStorage.getItem("enamel-lang")) as Lang | null;
+    const stored = (typeof window !== "undefined" &&
+      localStorage.getItem("enamel-lang")) as Lang | null;
     if (stored === "ar" || stored === "en") setLangState(stored);
   }, []);
 

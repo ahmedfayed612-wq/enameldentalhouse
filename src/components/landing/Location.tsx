@@ -33,10 +33,7 @@ export function Location() {
           </a>
         </div>
 
-        <div
-          id="google-map-embed"
-          className="card-soft min-h-[280px] overflow-hidden p-0"
-        >
+        <div id="google-map-embed" className="card-soft min-h-[280px] overflow-hidden p-0">
           <iframe
             title="Enamel Dental House location"
             src="https://www.google.com/maps?q=place_id:ChIJoTgIQEAbWBQR_1Vma-gl1kA&hl=ar&z=16&output=embed"

@@ -4,7 +4,7 @@ import { t as isSupabaseConfigured } from "./supabase-CeBPyXVR.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as useNavigate } from "../_libs/@tanstack/react-router+[...].mjs";
 import { s as require_jsx_runtime } from "../_libs/@radix-ui/react-collection+[...].mjs";
-import { s as Sparkles } from "../_libs/lucide-react.mjs";
+import { u as Sparkles } from "../_libs/lucide-react.mjs";
 // node_modules/.nitro/vite/services/ssr/assets/login-DQnkzvhO.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();

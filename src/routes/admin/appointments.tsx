@@ -10,10 +10,15 @@ import {
   STATUS_META,
   addDaysYmd,
   cairoParts,
-  fmtTime,
   todayYmd,
   type AppointmentStatus,
 } from "@/lib/admin/appointments";
+import {
+  APPOINTMENT_SELECT,
+  AppointmentItem,
+  StatusPill,
+  type AppointmentRow,
+} from "@/components/admin/AppointmentBits";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -35,28 +40,9 @@ export const Route = createFileRoute("/admin/appointments")({
 
 type Patient = { id: string; full_name: string; phone: string | null };
 type Service = { id: string; code: string; name_en: string; name_ar: string | null };
-type AppointmentRow = {
-  id: string;
-  starts_at: string;
-  ends_at: string;
-  status: AppointmentStatus;
-  source: string;
-  notes: string | null;
-  patients: { full_name: string; phone: string | null } | null;
-  services: { code: string; name_en: string; name_ar: string | null } | null;
-};
 
 const inputCls =
   "w-full min-h-11 rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20";
-
-function StatusPill({ status }: { status: AppointmentStatus }) {
-  const meta = STATUS_META[status];
-  return (
-    <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${meta.cls}`}>
-      {meta.label}
-    </span>
-  );
-}
 
 function AppointmentsPage() {
   return (
@@ -72,59 +58,95 @@ function AppointmentsInner() {
   const { state } = useAdminAuth();
   const actorId = state.status === "signed_in" ? state.session.user.id : null;
 
-  const [view, setView] = useState<"day" | "week">("day");
+  const [view, setView] = useState<"day" | "week" | "month">("day");
   const [cursor, setCursor] = useState(todayYmd());
   const [rows, setRows] = useState<AppointmentRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<AppointmentRow | null>(null);
   const [dentistId, setDentistId] = useState<string | null>(null);
+  const [dentists, setDentists] = useState<{ id: string; name: string }[]>([]);
+  const [filterDentist, setFilterDentist] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterService, setFilterService] = useState("all");
+  const [filterQ, setFilterQ] = useState("");
+  const [services, setServices] = useState<Service[]>([]);
 
-  const days = useMemo(
-    () => (view === "day" ? [cursor] : Array.from({ length: 7 }, (_, i) => addDaysYmd(cursor, i))),
-    [view, cursor],
-  );
+  const days = useMemo(() => {
+    if (view === "day") return [cursor];
+    if (view === "week") return Array.from({ length: 7 }, (_, i) => addDaysYmd(cursor, i));
+    return [];
+  }, [view, cursor]);
+
+  // Month grid: all ymd strings in cursor's month
+  const monthDays = useMemo(() => {
+    if (view !== "month") return [];
+    const [y, m] = cursor.split("-").map(Number);
+    const first = new Date(Date.UTC(y, m - 1, 1));
+    const dim = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    const startDow = first.getUTCDay(); // 0=Sun
+    const cells: (string | null)[] = [];
+    for (let i = 0; i < startDow; i++) cells.push(null);
+    for (let d = 1; d <= dim; d++) {
+      cells.push(`${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`);
+    }
+    return cells;
+  }, [view, cursor]);
+
+  const range = useMemo(() => {
+    if (view === "day") return { from: addDaysYmd(cursor, -1), to: addDaysYmd(cursor, 2) };
+    if (view === "week") return { from: addDaysYmd(days[0], -1), to: addDaysYmd(days[6], 2) };
+    const [y, m] = cursor.split("-").map(Number);
+    const first = `${y}-${String(m).padStart(2, "0")}-01`;
+    const lastD = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    return {
+      from: addDaysYmd(`${y}-${String(m).padStart(2, "0")}-${String(lastD).padStart(2, "0")}`, -45),
+      to: addDaysYmd(first, 45),
+    };
+  }, [view, cursor, days]);
 
   const load = useCallback(async () => {
     if (!supabase) return;
     setLoading(true);
-    const from = addDaysYmd(days[0], -2);
-    const to = addDaysYmd(days[days.length - 1], 3);
-    const { data, error } = await supabase
+    let q = supabase
       .from("appointments")
-      .select(
-        "id, starts_at, ends_at, status, source, notes, patients(full_name, phone), services(code, name_en, name_ar)",
-      )
-      .gte("starts_at", `${from}T00:00:00Z`)
-      .lt("starts_at", `${to}T00:00:00Z`)
+      .select(APPOINTMENT_SELECT)
+      .gte("starts_at", `${range.from}T00:00:00Z`)
+      .lt("starts_at", `${range.to}T00:00:00Z`)
       .order("starts_at");
+    if (filterDentist !== "all") q = q.eq("dentist_id", filterDentist);
+    const { data, error } = await q;
     setLoading(false);
     if (error) {
       toast.error("Failed to load appointments");
       return;
     }
-    const wanted = new Set(days);
-    setRows(
-      ((data ?? []) as unknown as AppointmentRow[]).filter((r) =>
-        wanted.has(cairoParts(r.starts_at).ymd),
-      ),
-    );
-  }, [days]);
+    setRows((data as unknown as AppointmentRow[]) ?? []);
+  }, [range, filterDentist]);
 
   useEffect(() => {
     load();
   }, [load]);
 
   useEffect(() => {
-    if (!supabase || dentistId) return;
+    if (!supabase) return;
     supabase
       .from("dentists")
-      .select("id")
+      .select("id, name")
       .eq("active", true)
       .order("created_at")
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => setDentistId(data?.id ?? null));
-  }, [dentistId]);
+      .then(({ data }) => {
+        const list = (data as { id: string; name: string }[]) ?? [];
+        setDentists(list);
+        if (list[0] && !dentistId) setDentistId(list[0].id);
+      });
+    supabase
+      .from("services")
+      .select("id, code, name_en, name_ar")
+      .eq("active", true)
+      .order("sort_order")
+      .then(({ data }) => setServices((data as Service[]) ?? []));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function setStatus(a: AppointmentRow, to: AppointmentStatus) {
     if (!supabase || !actorId) return;
@@ -149,39 +171,73 @@ function AppointmentsInner() {
     load();
   }
 
-  function shift(daysCount: number) {
-    setCursor((c) => addDaysYmd(c, daysCount));
+  function shift(n: number) {
+    if (view === "month") {
+      const [y, m] = cursor.split("-").map(Number);
+      const d = new Date(Date.UTC(y, m - 1 + n, 1));
+      setCursor(d.toISOString().slice(0, 10));
+    } else {
+      setCursor((c) => addDaysYmd(c, view === "day" ? n : n * 7));
+    }
   }
 
+  const filtered = useMemo(() => {
+    const q = filterQ.trim().toLowerCase();
+    return rows.filter((r) => {
+      if (filterStatus !== "all" && r.status !== filterStatus) return false;
+      if (filterService !== "all" && r.service_id !== filterService) return false;
+      if (q) {
+        const hay = `${r.patients?.full_name ?? ""} ${r.patients?.phone ?? ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [rows, filterStatus, filterService, filterQ]);
+
   const byDay = useMemo(() => {
+    const wanted = view === "month" ? monthDays.filter(Boolean) : days;
     const map = new Map<string, AppointmentRow[]>();
-    for (const d of days) map.set(d, []);
-    for (const r of rows) {
+    for (const d of wanted as string[]) map.set(d, []);
+    for (const r of filtered) {
       const key = cairoParts(r.starts_at).ymd;
       map.get(key)?.push(r);
     }
     for (const list of map.values()) list.sort((a, b) => a.starts_at.localeCompare(b.starts_at));
     return map;
-  }, [rows, days]);
+  }, [filtered, days, monthDays, view]);
+
+  const monthCounts = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const r of rows) {
+      const key = cairoParts(r.starts_at).ymd;
+      map.set(key, (map.get(key) ?? 0) + 1);
+    }
+    return map;
+  }, [rows]);
+
+  const subtitle =
+    view === "day"
+      ? cursor
+      : view === "week"
+        ? `${days[0]} → ${days[6]}`
+        : new Date(`${cursor}T12:00:00Z`).toLocaleDateString("en-GB", {
+            month: "long",
+            year: "numeric",
+          });
 
   return (
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">Appointments</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {view === "day" ? cursor : `${days[0]} → ${days[6]}`}
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex rounded-xl border border-border bg-card p-1">
-            {(["day", "week"] as const).map((v) => (
+            {(["day", "week", "month"] as const).map((v) => (
               <button
                 key={v}
-                onClick={() => {
-                  setView(v);
-                  if (v === "week" && cursor !== todayYmd()) setCursor(cursor);
-                }}
+                onClick={() => setView(v)}
                 className={`rounded-lg px-3 py-1.5 text-sm font-medium capitalize transition-colors ${
                   view === v
                     ? "bg-deep text-deep-foreground"
@@ -192,13 +248,13 @@ function AppointmentsInner() {
               </button>
             ))}
           </div>
-          <Button variant="outline" size="icon" onClick={() => shift(view === "day" ? -1 : -7)}>
+          <Button variant="outline" size="icon" onClick={() => shift(-1)}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <Button variant="outline" size="sm" onClick={() => setCursor(todayYmd())}>
             Today
           </Button>
-          <Button variant="outline" size="icon" onClick={() => shift(view === "day" ? 1 : 7)}>
+          <Button variant="outline" size="icon" onClick={() => shift(1)}>
             <ChevronRight className="h-4 w-4" />
           </Button>
           <Button onClick={() => setCreateOpen(true)} className="bg-deep text-deep-foreground">
@@ -207,11 +263,113 @@ function AppointmentsInner() {
         </div>
       </div>
 
+      {/* Filters */}
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="relative">
+          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={filterQ}
+            onChange={(e) => setFilterQ(e.target.value)}
+            placeholder="Search patient…"
+            className="w-48 ps-9"
+          />
+        </div>
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className="w-36">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            {(Object.keys(STATUS_META) as AppointmentStatus[]).map((s) => (
+              <SelectItem key={s} value={s}>
+                {STATUS_META[s].label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={filterService} onValueChange={setFilterService}>
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder="Service" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All services</SelectItem>
+            {services.map((s) => (
+              <SelectItem key={s.id} value={s.id}>
+                {s.name_ar ?? s.name_en}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {dentists.length > 1 && (
+          <Select value={filterDentist} onValueChange={setFilterDentist}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Dentist" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All dentists</SelectItem>
+              {dentists.map((d) => (
+                <SelectItem key={d.id} value={d.id}>
+                  {d.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      </div>
+
       {loading ? (
         <div className="mt-8 space-y-3">
           {[0, 1, 2, 3].map((i) => (
             <div key={i} className="h-16 animate-pulse rounded-2xl bg-muted" />
           ))}
+        </div>
+      ) : view === "month" ? (
+        <div className="card-soft mt-6 overflow-hidden">
+          <div className="grid grid-cols-7 border-b border-border bg-muted/40 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+              <div key={d} className="px-2 py-2">
+                {d}
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7">
+            {monthDays.map((d, i) => {
+              if (!d)
+                return (
+                  <div
+                    key={`e${i}`}
+                    className="min-h-20 border-b border-e border-border bg-muted/20"
+                  />
+                );
+              const list = byDay.get(d) ?? [];
+              const isToday = d === todayYmd();
+              return (
+                <button
+                  key={d}
+                  onClick={() => {
+                    setCursor(d);
+                    setView("day");
+                  }}
+                  className={`min-h-20 border-b border-e border-border p-1.5 text-start transition-colors hover:bg-secondary/50 ${
+                    isToday ? "bg-primary-soft/60" : ""
+                  }`}
+                >
+                  <span
+                    className={`inline-grid h-6 w-6 place-items-center rounded-full text-xs font-semibold ${
+                      isToday ? "bg-deep text-deep-foreground" : "text-foreground"
+                    }`}
+                  >
+                    {Number(d.slice(8))}
+                  </span>
+                  {list.length > 0 && (
+                    <span className="mt-1 block truncate text-[10px] font-medium text-muted-foreground">
+                      {list.length} appt{list.length > 1 ? "s" : ""}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       ) : (
         <div
@@ -245,7 +403,12 @@ function AppointmentsInner() {
                 ) : (
                   <ul className="divide-y divide-border">
                     {list.map((a) => (
-                      <AppointmentItem key={a.id} a={a} onStatus={setStatus} />
+                      <AppointmentItem
+                        key={a.id}
+                        a={a}
+                        onStatus={setStatus}
+                        onEdit={setEditTarget}
+                      />
                     ))}
                   </ul>
                 )}
@@ -262,65 +425,15 @@ function AppointmentsInner() {
         defaultDate={cursor}
         onCreated={load}
       />
+      {editTarget && (
+        <EditAppointmentDialog
+          appointment={editTarget}
+          dentistId={dentistId}
+          onClose={() => setEditTarget(null)}
+          onSaved={load}
+        />
+      )}
     </div>
-  );
-}
-
-function AppointmentItem({
-  a,
-  onStatus,
-}: {
-  a: AppointmentRow;
-  onStatus: (a: AppointmentRow, to: AppointmentStatus) => void;
-}) {
-  const next = NEXT_STATUS[a.status];
-  const canNoShow = a.status === "arrived" || a.status === "waiting";
-  const canCancel = !["completed", "cancelled", "no_show"].includes(a.status);
-
-  return (
-    <li className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
-      <span className="w-14 shrink-0 text-sm font-semibold tabular-nums text-foreground" dir="ltr">
-        {fmtTime(a.starts_at)}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-foreground">
-          {a.patients?.full_name ?? "Unknown patient"}
-        </p>
-        <p className="truncate text-xs text-muted-foreground">
-          {a.services ? (a.services.name_ar ?? a.services.name_en) : "Service"}
-          {a.patients?.phone ? ` · ${a.patients.phone}` : ""}
-          {a.source === "web" && " · web"}
-        </p>
-        {a.notes && (
-          <p className="mt-0.5 truncate text-xs italic text-muted-foreground">{a.notes}</p>
-        )}
-      </div>
-      <StatusPill status={a.status} />
-      <div className="flex items-center gap-1.5">
-        {next && (
-          <Button size="sm" variant="secondary" onClick={() => onStatus(a, next)}>
-            → {STATUS_META[next].label}
-          </Button>
-        )}
-        {canNoShow && (
-          <Button size="sm" variant="outline" onClick={() => onStatus(a, "no_show")}>
-            No-show
-          </Button>
-        )}
-        {canCancel && (
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-destructive hover:bg-destructive/10"
-            onClick={() => {
-              if (window.confirm("Cancel this appointment?")) onStatus(a, "cancelled");
-            }}
-          >
-            Cancel
-          </Button>
-        )}
-      </div>
-    </li>
   );
 }
 
@@ -448,7 +561,6 @@ function CreateAppointmentDialog({
       }
     }
 
-    const service = services.find((s) => s.id === serviceId);
     const slotRes = await getDaySlots({ data: { date } });
     if (!slotRes.ok || !slotRes.slots.includes(time)) {
       setError("That slot is no longer available — pick another time.");
@@ -456,7 +568,6 @@ function CreateAppointmentDialog({
       return;
     }
 
-    // Clinic-local (Africa/Cairo) date+time -> timestamptz
     const start = cairoToUtc(date, time);
     const end = new Date(start.getTime() + slotMinutes * 60000).toISOString();
 
@@ -653,10 +764,188 @@ function CreateAppointmentDialog({
   );
 }
 
+/** Edit/reschedule an existing appointment — preserves id, patient, and status history. */
+function EditAppointmentDialog({
+  appointment,
+  dentistId,
+  onClose,
+  onSaved,
+}: {
+  appointment: AppointmentRow;
+  dentistId: string | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [services, setServices] = useState<Service[]>([]);
+  const [serviceId, setServiceId] = useState(appointment.service_id ?? "");
+  const [date, setDate] = useState(() => cairoParts(appointment.starts_at).ymd);
+  const [time, setTime] = useState(() => cairoParts(appointment.starts_at).time);
+  const [slots, setSlots] = useState<string[]>([]);
+  const [slotMinutes, setSlotMinutes] = useState(45);
+  const [notes, setNotes] = useState(appointment.notes ?? "");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!supabase) return;
+    supabase
+      .from("services")
+      .select("id, code, name_en, name_ar")
+      .eq("active", true)
+      .order("sort_order")
+      .then(({ data }) => setServices((data as Service[]) ?? []));
+    supabase
+      .from("clinic_settings")
+      .select("slot_minutes")
+      .eq("id", 1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.slot_minutes) setSlotMinutes(data.slot_minutes);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!date) {
+      setSlots([]);
+      return;
+    }
+    getDaySlots({ data: { date } }).then((r) => {
+      const list = r.ok ? r.slots : [];
+      // Keep the current slot selectable even if the RPC doesn't list it
+      // (e.g. it's the appointment's own slot — get_day_slots excludes it anyway
+      // because this appointment still occupies it).
+      setSlots(list);
+    });
+  }, [date]);
+
+  async function submit() {
+    if (!supabase) return;
+    setError(null);
+    setSaving(true);
+
+    const start = cairoToUtc(date, time);
+    const end = new Date(start.getTime() + slotMinutes * 60000).toISOString();
+
+    const { error: aErr } = await supabase
+      .from("appointments")
+      .update({
+        service_id: serviceId || null,
+        starts_at: start.toISOString(),
+        ends_at: end,
+        notes: notes.trim() || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", appointment.id);
+    setSaving(false);
+    if (aErr) {
+      setError(
+        aErr.code === "23P01"
+          ? "That time overlaps an existing appointment."
+          : "Could not update appointment.",
+      );
+      return;
+    }
+    toast.success("Appointment updated");
+    onClose();
+    onSaved();
+  }
+
+  return (
+    <Dialog open onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Edit appointment</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="rounded-xl border border-border bg-muted/40 px-3 py-2.5">
+            <p className="text-sm font-medium text-foreground">
+              {appointment.patients?.full_name ?? "Unknown patient"}
+            </p>
+            <p className="text-xs text-muted-foreground" dir="ltr">
+              {appointment.patients?.phone}
+            </p>
+            <p className="mt-1">
+              <StatusPill status={appointment.status} />
+            </p>
+          </div>
+
+          <div>
+            <Label className="mb-1 block text-xs">Service</Label>
+            <Select value={serviceId} onValueChange={setServiceId}>
+              <SelectTrigger className={inputCls}>
+                <SelectValue placeholder="Select service" />
+              </SelectTrigger>
+              <SelectContent>
+                {services.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.name_ar ?? s.name_en}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <Label className="mb-1 block text-xs">Date</Label>
+              <Input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <Label className="mb-1 block text-xs">Time</Label>
+              <Select value={time} onValueChange={setTime}>
+                <SelectTrigger className={inputCls}>
+                  <SelectValue placeholder="Time" />
+                </SelectTrigger>
+                <SelectContent>
+                  {/* Always include current time so it stays selectable */}
+                  {!slots.includes(time) && time && (
+                    <SelectItem value={time}>{time} (current)</SelectItem>
+                  )}
+                  {slots.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div>
+            <Label className="mb-1 block text-xs">Notes (internal)</Label>
+            <Textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={2}
+              className={inputCls}
+            />
+          </div>
+
+          {error && (
+            <p className="rounded-xl bg-destructive/10 p-3 text-xs text-destructive">{error}</p>
+          )}
+
+          <Button
+            onClick={submit}
+            disabled={saving}
+            className="w-full bg-deep text-deep-foreground"
+          >
+            {saving ? "Saving…" : "Save changes"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 /** Convert a clinic-local (Africa/Cairo) date+HH:MM to a UTC Date. */
 function cairoToUtc(date: string, time: string): Date {
-  // Africa/Cairo is UTC+2 (winter) / UTC+3 (summer DST). Determine offset by
-  // probing the zone: format a UTC guess in Cairo and compare.
   const guess = new Date(`${date}T${time}:00Z`);
   const cairo = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Africa/Cairo",

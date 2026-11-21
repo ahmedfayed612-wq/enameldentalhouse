@@ -4,7 +4,10 @@ import { Globe, Menu, X } from "lucide-react";
 
 const WA_LINK = "https://wa.me/201000268550";
 
-const navLinks: Array<{ key: "navWhy" | "navServices" | "navResults" | "navDoctor" | "navFaq" | "navContact"; href: string }> = [
+const navLinks: Array<{
+  key: "navWhy" | "navServices" | "navResults" | "navDoctor" | "navFaq" | "navContact";
+  href: string;
+}> = [
   { key: "navWhy", href: "#why" },
   { key: "navServices", href: "#services" },
   { key: "navResults", href: "#results" },
@@ -20,7 +23,10 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur">
       <div className="container-page flex h-16 items-center justify-between gap-4">
-        <a href="#top" className="flex items-center gap-2 font-semibold tracking-tight text-foreground">
+        <a
+          href="#top"
+          className="flex items-center gap-2 font-semibold tracking-tight text-foreground"
+        >
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-deep">
             <span className="text-base font-bold">E</span>
           </span>

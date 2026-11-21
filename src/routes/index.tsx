@@ -30,7 +30,8 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Enamel Dental House — Obour City" },
       {
         property: "og:description",
-        content: "Book your dental appointment in Obour City. Same-week slots, transparent pricing.",
+        content:
+          "Book your dental appointment in Obour City. Same-week slots, transparent pricing.",
       },
       { property: "og:type", content: "website" },
     ],

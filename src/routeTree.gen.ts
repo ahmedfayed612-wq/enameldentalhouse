@@ -13,7 +13,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminAppointmentsRouteImport } from './routes/admin/appointments'
+import { Route as AdminBillingRouteImport } from './routes/admin/billing'
+import { Route as AdminExpensesRouteImport } from './routes/admin/expenses'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as AdminPatientsRouteImport } from './routes/admin/patients'
+import { Route as AdminReportsRouteImport } from './routes/admin/reports'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminWaitingRoomRouteImport } from './routes/admin/waiting-room'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -35,9 +41,39 @@ const AdminAppointmentsRoute = AdminAppointmentsRouteImport.update({
   path: '/appointments',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBillingRoute = AdminBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminExpensesRoute = AdminExpensesRouteImport.update({
+  id: '/expenses',
+  path: '/expenses',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPatientsRoute = AdminPatientsRouteImport.update({
+  id: '/patients',
+  path: '/patients',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminWaitingRoomRoute = AdminWaitingRoomRouteImport.update({
+  id: '/waiting-room',
+  path: '/waiting-room',
   getParentRoute: () => AdminRoute,
 } as any)
 
@@ -45,13 +81,25 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/billing': typeof AdminBillingRoute
+  '/admin/expenses': typeof AdminExpensesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/patients': typeof AdminPatientsRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/waiting-room': typeof AdminWaitingRoomRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/billing': typeof AdminBillingRoute
+  '/admin/expenses': typeof AdminExpensesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/patients': typeof AdminPatientsRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/waiting-room': typeof AdminWaitingRoomRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
@@ -59,20 +107,53 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/billing': typeof AdminBillingRoute
+  '/admin/expenses': typeof AdminExpensesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/patients': typeof AdminPatientsRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/waiting-room': typeof AdminWaitingRoomRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/admin/appointments' | '/admin/login' | '/admin/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/admin/appointments'
+    | '/admin/billing'
+    | '/admin/expenses'
+    | '/admin/login'
+    | '/admin/patients'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/admin/waiting-room'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin/appointments' | '/admin/login' | '/admin'
+  to:
+    | '/'
+    | '/admin/appointments'
+    | '/admin/billing'
+    | '/admin/expenses'
+    | '/admin/login'
+    | '/admin/patients'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/admin/waiting-room'
+    | '/admin'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/admin/appointments'
+    | '/admin/billing'
+    | '/admin/expenses'
     | '/admin/login'
+    | '/admin/patients'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/admin/waiting-room'
     | '/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -111,6 +192,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAppointmentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/billing': {
+      id: '/admin/billing'
+      path: '/billing'
+      fullPath: '/admin/billing'
+      preLoaderRoute: typeof AdminBillingRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/expenses': {
+      id: '/admin/expenses'
+      path: '/expenses'
+      fullPath: '/admin/expenses'
+      preLoaderRoute: typeof AdminExpensesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/login'
@@ -118,18 +213,58 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/patients': {
+      id: '/admin/patients'
+      path: '/patients'
+      fullPath: '/admin/patients'
+      preLoaderRoute: typeof AdminPatientsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/waiting-room': {
+      id: '/admin/waiting-room'
+      path: '/waiting-room'
+      fullPath: '/admin/waiting-room'
+      preLoaderRoute: typeof AdminWaitingRoomRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
   AdminAppointmentsRoute: typeof AdminAppointmentsRoute
+  AdminBillingRoute: typeof AdminBillingRoute
+  AdminExpensesRoute: typeof AdminExpensesRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminPatientsRoute: typeof AdminPatientsRoute
+  AdminReportsRoute: typeof AdminReportsRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminWaitingRoomRoute: typeof AdminWaitingRoomRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAppointmentsRoute: AdminAppointmentsRoute,
+  AdminBillingRoute: AdminBillingRoute,
+  AdminExpensesRoute: AdminExpensesRoute,
   AdminLoginRoute: AdminLoginRoute,
+  AdminPatientsRoute: AdminPatientsRoute,
+  AdminReportsRoute: AdminReportsRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminWaitingRoomRoute: AdminWaitingRoomRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
