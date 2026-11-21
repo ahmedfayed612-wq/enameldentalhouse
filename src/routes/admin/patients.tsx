@@ -337,3 +337,215 @@ function CreatePatientDialog({
     </Dialog>
   );
 }
+
+const ITEM_STATUS_CLS: Record<PlanItem["status"], string> = {
+  planned: "bg-muted text-muted-foreground",
+  in_progress: "bg-primary/20 text-deep",
+  done: "bg-mint text-deep",
+  skipped: "bg-destructive/10 text-destructive",
+};
+
+function TreatmentPlans({ patientId }: { patientId: string }) {
+  const [plans, setPlans] = useState<(TreatmentPlan & { items: PlanItem[] })[]>([]);
+  const [newTitle, setNewTitle] = useState("");
+  const [adding, setAdding] = useState(false);
+  const [itemDraft, setItemDraft] = useState<
+    Record<string, { desc: string; tooth: string; price: string }>
+  >({});
+
+  const load = useCallback(async () => {
+    if (!supabase) return;
+    const { data: planRows } = await supabase
+      .from("treatment_plans")
+      .select("id, title, status, notes, created_at")
+      .eq("patient_id", patientId)
+      .order("created_at", { ascending: false });
+    const list = (planRows as TreatmentPlan[]) ?? [];
+    if (list.length === 0) {
+      setPlans([]);
+      return;
+    }
+    const { data: itemRows } = await supabase
+      .from("treatment_plan_items")
+      .select("id, plan_id, description, tooth, status, estimated_price, sort_order")
+      .in(
+        "plan_id",
+        list.map((p) => p.id),
+      )
+      .order("sort_order");
+    const items = (itemRows as PlanItem[]) ?? [];
+    setPlans(list.map((p) => ({ ...p, items: items.filter((i) => i.plan_id === p.id) })));
+  }, [patientId]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  async function createPlan() {
+    if (!supabase || newTitle.trim().length < 2) return;
+    const { error } = await supabase
+      .from("treatment_plans")
+      .insert({ patient_id: patientId, title: newTitle.trim(), status: "active" });
+    if (error) {
+      toast.error("Could not create plan");
+      return;
+    }
+    setNewTitle("");
+    setAdding(false);
+    load();
+  }
+
+  async function addItem(planId: string) {
+    if (!supabase) return;
+    const d = itemDraft[planId] ?? { desc: "", tooth: "", price: "" };
+    if (d.desc.trim().length < 2) return;
+    const { error } = await supabase.from("treatment_plan_items").insert({
+      plan_id: planId,
+      description: d.desc.trim(),
+      tooth: d.tooth.trim() || null,
+      estimated_price: d.price ? Number(d.price) : null,
+      sort_order: 999,
+    });
+    if (error) {
+      toast.error("Could not add item");
+      return;
+    }
+    setItemDraft((m) => ({ ...m, [planId]: { desc: "", tooth: "", price: "" } }));
+    load();
+  }
+
+  async function setItemStatus(item: PlanItem, status: PlanItem["status"]) {
+    if (!supabase) return;
+    await supabase.from("treatment_plan_items").update({ status }).eq("id", item.id);
+    load();
+  }
+
+  async function setPlanStatus(plan: TreatmentPlan, status: TreatmentPlan["status"]) {
+    if (!supabase) return;
+    await supabase.from("treatment_plans").update({ status }).eq("id", plan.id);
+    load();
+  }
+
+  const fmtEgp = (n: number | null) =>
+    n == null ? "" : `EGP ${Number(n).toLocaleString("en-EG", { maximumFractionDigits: 0 })}`;
+
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-foreground">Treatment plans</h3>
+        {!adding && (
+          <Button size="sm" variant="outline" onClick={() => setAdding(true)}>
+            + Plan
+          </Button>
+        )}
+      </div>
+
+      {adding && (
+        <div className="mb-3 flex gap-2">
+          <Input
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            placeholder="Plan title, e.g. Full mouth rehab"
+            className={inputCls}
+          />
+          <Button size="sm" onClick={createPlan} className="bg-deep text-deep-foreground">
+            Add
+          </Button>
+        </div>
+      )}
+
+      {plans.length === 0 && !adding && (
+        <p className="text-xs text-muted-foreground">No treatment plans yet.</p>
+      )}
+
+      <div className="space-y-3">
+        {plans.map((p) => {
+          const draft = itemDraft[p.id] ?? { desc: "", tooth: "", price: "" };
+          return (
+            <div key={p.id} className="rounded-xl border border-border">
+              <div className="flex items-center justify-between border-b border-border bg-muted/40 px-3 py-2">
+                <p className="text-sm font-medium text-foreground">{p.title}</p>
+                <select
+                  value={p.status}
+                  onChange={(e) => setPlanStatus(p, e.target.value as TreatmentPlan["status"])}
+                  className="rounded-lg border border-input bg-background px-2 py-1 text-xs text-foreground"
+                >
+                  <option value="active">Active</option>
+                  <option value="completed">Completed</option>
+                  <option value="archived">Archived</option>
+                </select>
+              </div>
+              <ul className="divide-y divide-border">
+                {p.items.map((it) => (
+                  <li key={it.id} className="flex items-center gap-2 px-3 py-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm text-foreground">{it.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {it.tooth ? `Tooth ${it.tooth}` : ""}
+                        {it.estimated_price != null ? ` · ${fmtEgp(it.estimated_price)}` : ""}
+                      </p>
+                    </div>
+                    <select
+                      value={it.status}
+                      onChange={(e) => setItemStatus(it, e.target.value as PlanItem["status"])}
+                      className={`rounded-full border-0 px-2 py-1 text-[10px] font-semibold ${ITEM_STATUS_CLS[it.status]}`}
+                    >
+                      <option value="planned">Planned</option>
+                      <option value="in_progress">In progress</option>
+                      <option value="done">Done</option>
+                      <option value="skipped">Skipped</option>
+                    </select>
+                  </li>
+                ))}
+                {p.items.length === 0 && (
+                  <li className="px-3 py-2 text-xs text-muted-foreground">No items yet.</li>
+                )}
+              </ul>
+              <div className="flex gap-2 border-t border-border p-2">
+                <Input
+                  value={draft.desc}
+                  onChange={(e) =>
+                    setItemDraft((m) => ({
+                      ...m,
+                      [p.id]: { ...draft, desc: e.target.value },
+                    }))
+                  }
+                  placeholder="Add item…"
+                  className="h-9 flex-1 text-xs"
+                />
+                <Input
+                  value={draft.tooth}
+                  onChange={(e) =>
+                    setItemDraft((m) => ({ ...m, [p.id]: { ...draft, tooth: e.target.value } }))
+                  }
+                  placeholder="Tooth #"
+                  className="h-9 w-16 text-xs"
+                  dir="ltr"
+                />
+                <Input
+                  value={draft.price}
+                  onChange={(e) =>
+                    setItemDraft((m) => ({ ...m, [p.id]: { ...draft, price: e.target.value } }))
+                  }
+                  placeholder="EGP"
+                  type="number"
+                  min={0}
+                  className="h-9 w-20 text-xs"
+                  dir="ltr"
+                />
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => addItem(p.id)}
+                  disabled={draft.desc.trim().length < 2}
+                >
+                  Add
+                </Button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
