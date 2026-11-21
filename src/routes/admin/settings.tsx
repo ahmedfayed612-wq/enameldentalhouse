@@ -35,6 +35,16 @@ type WorkingHour = {
   close_time: string | null;
 };
 
+type Service = {
+  id: string;
+  code: string;
+  name_en: string;
+  name_ar: string | null;
+  price: number | null;
+  duration_min: number;
+  active: boolean;
+};
+
 const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 const inputCls =
@@ -58,17 +68,22 @@ function SettingsInner() {
 
   const [settings, setSettings] = useState<ClinicSettings | null>(null);
   const [hours, setHours] = useState<WorkingHour[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     if (!supabase) return;
-    const [sRes, hRes] = await Promise.all([
+    const [sRes, hRes, vRes] = await Promise.all([
       supabase.from("clinic_settings").select("*").eq("id", 1).maybeSingle(),
       supabase
         .from("working_hours")
         .select("id, weekday, is_closed, open_time, close_time")
         .order("weekday"),
+      supabase
+        .from("services")
+        .select("id, code, name_en, name_ar, price, duration_min, active")
+        .order("sort_order"),
     ]);
     if (sRes.data) {
       const s = sRes.data as ClinicSettings & { id: number };
@@ -85,6 +100,7 @@ function SettingsInner() {
       });
     }
     setHours((hRes.data as WorkingHour[]) ?? []);
+    setServices((vRes.data as Service[]) ?? []);
     setLoading(false);
   }, []);
 
@@ -127,6 +143,21 @@ function SettingsInner() {
       if (hErr) {
         setSaving(false);
         toast.error("Clinic settings saved, but working hours failed");
+        return;
+      }
+    }
+    for (const s of services) {
+      const { error: sErr } = await supabase
+        .from("services")
+        .update({
+          price: s.price,
+          duration_min: s.duration_min,
+          active: s.active,
+        })
+        .eq("id", s.id);
+      if (sErr) {
+        setSaving(false);
+        toast.error("Clinic settings saved, but a service failed to update");
         return;
       }
     }
@@ -314,6 +345,80 @@ function SettingsInner() {
                   />
                 </div>
               )}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="card-soft mt-6 space-y-3 p-6">
+        <div>
+          <h2 className="text-base font-semibold text-foreground">Services & prices</h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Prices in EGP — used for invoice quick-pick and treatment estimates.
+          </p>
+        </div>
+        <ul className="divide-y divide-border">
+          {services.map((s) => (
+            <li key={s.id} className="flex flex-wrap items-center gap-3 py-2.5">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-foreground">
+                  {s.name_ar ?? s.name_en}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {s.name_en}
+                  {s.code ? ` · ${s.code}` : ""}
+                </p>
+              </div>
+              <div className="flex items-center gap-2" dir="ltr">
+                <Input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={s.price ?? ""}
+                  disabled={!canEdit}
+                  placeholder="Price"
+                  onChange={(e) =>
+                    setServices((sv) =>
+                      sv.map((x) =>
+                        x.id === s.id
+                          ? { ...x, price: e.target.value === "" ? null : Number(e.target.value) }
+                          : x,
+                      ),
+                    )
+                  }
+                  className="w-28"
+                />
+                <Input
+                  type="number"
+                  min={5}
+                  step="5"
+                  value={s.duration_min}
+                  disabled={!canEdit}
+                  title="Duration (min)"
+                  onChange={(e) =>
+                    setServices((sv) =>
+                      sv.map((x) =>
+                        x.id === s.id ? { ...x, duration_min: Number(e.target.value) } : x,
+                      ),
+                    )
+                  }
+                  className="w-20"
+                />
+                <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={s.active}
+                    disabled={!canEdit}
+                    onChange={(e) =>
+                      setServices((sv) =>
+                        sv.map((x) => (x.id === s.id ? { ...x, active: e.target.checked } : x)),
+                      )
+                    }
+                    className="h-4 w-4 accent-primary"
+                  />
+                  Active
+                </label>
+              </div>
             </li>
           ))}
         </ul>
