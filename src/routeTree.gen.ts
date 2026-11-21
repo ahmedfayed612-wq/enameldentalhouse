@@ -14,6 +14,15 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminAppointmentsRouteImport } from './routes/admin/appointments'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as AdminPatientsRouteImport } from './routes/admin/patients'
+import { Route as AdminPatientIdRouteImport } from './routes/admin/patients/$patientId'
+import { Route as AdminBillingRouteImport } from './routes/admin/billing'
+import { Route as AdminBillingIdRouteImport } from './routes/admin/billing/$invoiceId'
+import { Route as AdminBillingCreateRouteImport } from './routes/admin/billing/create'
+import { Route as AdminExpensesRouteImport } from './routes/admin/expenses'
+import { Route as AdminReportsRouteImport } from './routes/admin/reports'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminTreatmentPlansRouteImport } from './routes/admin/treatment-plans'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,18 +49,81 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPatientsRoute = AdminPatientsRouteImport.update({
+  id: '/patients',
+  path: '/patients',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPatientIdRoute = AdminPatientIdRouteImport.update({
+  id: '/patients/$patientId',
+  path: '/patients/$patientId',
+  getParentRoute: () => AdminPatientsRoute,
+} as any)
+const AdminBillingRoute = AdminBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBillingIdRoute = AdminBillingIdRouteImport.update({
+  id: '/billing/$invoiceId',
+  path: '/billing/$invoiceId',
+  getParentRoute: () => AdminBillingRoute,
+} as any)
+const AdminBillingCreateRoute = AdminBillingCreateRouteImport.update({
+  id: '/billing/create',
+  path: '/billing/create',
+  getParentRoute: () => AdminBillingRoute,
+} as any)
+const AdminExpensesRoute = AdminExpensesRouteImport.update({
+  id: '/expenses',
+  path: '/expenses',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminTreatmentPlansRoute = AdminTreatmentPlansRouteImport.update({
+  id: '/treatment-plans',
+  path: '/treatment-plans',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/billing': typeof AdminBillingRoute
+  '/admin/billing/$invoiceId': typeof AdminBillingIdRoute
+  '/admin/billing/create': typeof AdminBillingCreateRoute
+  '/admin/expenses': typeof AdminExpensesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/patients': typeof AdminPatientsRoute
+  '/admin/patients/$patientId': typeof AdminPatientIdRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/treatment-plans': typeof AdminTreatmentPlansRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/billing': typeof AdminBillingRoute
+  '/admin/billing/$invoiceId': typeof AdminBillingIdRoute
+  '/admin/billing/create': typeof AdminBillingCreateRoute
+  '/admin/expenses': typeof AdminExpensesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/patients': typeof AdminPatientsRoute
+  '/admin/patients/$patientId': typeof AdminPatientIdRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/treatment-plans': typeof AdminTreatmentPlansRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
@@ -59,20 +131,38 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/billing': typeof AdminBillingRoute
+  '/admin/billing/$invoiceId': typeof AdminBillingIdRoute
+  '/admin/billing/create': typeof AdminBillingCreateRoute
+  '/admin/expenses': typeof AdminExpensesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/patients': typeof AdminPatientsRoute
+  '/admin/patients/$patientId': typeof AdminPatientIdRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/treatment-plans': typeof AdminTreatmentPlansRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/admin/appointments' | '/admin/login' | '/admin/'
+  fullPaths: '/' | '/admin' | '/admin/appointments' | '/admin/billing' | '/admin/billing/$invoiceId' | '/admin/billing/create' | '/admin/expenses' | '/admin/login' | '/admin/patients' | '/admin/patients/$patientId' | '/admin/reports' | '/admin/settings' | '/admin/treatment-plans' | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin/appointments' | '/admin/login' | '/admin'
+  to: '/' | '/admin/appointments' | '/admin/billing' | '/admin/billing/$invoiceId' | '/admin/billing/create' | '/admin/expenses' | '/admin/login' | '/admin/patients' | '/admin/patients/$patientId' | '/admin/reports' | '/admin/settings' | '/admin/treatment-plans' | '/admin'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/admin/appointments'
+    | '/admin/billing'
+    | '/admin/billing/$invoiceId'
+    | '/admin/billing/create'
+    | '/admin/expenses'
     | '/admin/login'
+    | '/admin/patients'
+    | '/admin/patients/$patientId'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/admin/treatment-plans'
     | '/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -111,6 +201,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAppointmentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/billing': {
+      id: '/admin/billing'
+      path: '/billing'
+      fullPath: '/admin/billing'
+      preLoaderRoute: typeof AdminBillingRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/billing/$invoiceId': {
+      id: '/admin/billing/$invoiceId'
+      path: '/billing/$invoiceId'
+      fullPath: '/admin/billing/$invoiceId'
+      preLoaderRoute: typeof AdminBillingIdRouteImport
+      parentRoute: typeof AdminBillingRoute
+    }
+    '/admin/billing/create': {
+      id: '/admin/billing/create'
+      path: '/billing/create'
+      fullPath: '/admin/billing/create'
+      preLoaderRoute: typeof AdminBillingCreateRouteImport
+      parentRoute: typeof AdminBillingRoute
+    }
+    '/admin/expenses': {
+      id: '/admin/expenses'
+      path: '/expenses'
+      fullPath: '/admin/expenses'
+      preLoaderRoute: typeof AdminExpensesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/login'
@@ -118,18 +236,71 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/patients': {
+      id: '/admin/patients'
+      path: '/patients'
+      fullPath: '/admin/patients'
+      preLoaderRoute: typeof AdminPatientsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/patients/$patientId': {
+      id: '/admin/patients/$patientId'
+      path: '/patients/$patientId'
+      fullPath: '/admin/patients/$patientId'
+      preLoaderRoute: typeof AdminPatientIdRouteImport
+      parentRoute: typeof AdminPatientsRoute
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/treatment-plans': {
+      id: '/admin/treatment-plans'
+      path: '/treatment-plans'
+      fullPath: '/admin/treatment-plans'
+      preLoaderRoute: typeof AdminTreatmentPlansRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
   AdminAppointmentsRoute: typeof AdminAppointmentsRoute
+  AdminBillingRoute: typeof AdminBillingRoute
+  AdminBillingIdRoute: typeof AdminBillingIdRoute
+  AdminBillingCreateRoute: typeof AdminBillingCreateRoute
+  AdminExpensesRoute: typeof AdminExpensesRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminPatientsRoute: typeof AdminPatientsRoute
+  AdminPatientIdRoute: typeof AdminPatientIdRoute
+  AdminReportsRoute: typeof AdminReportsRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminTreatmentPlansRoute: typeof AdminTreatmentPlansRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAppointmentsRoute: AdminAppointmentsRoute,
+  AdminBillingRoute: AdminBillingRoute,
+  AdminBillingIdRoute: AdminBillingIdRoute,
+  AdminBillingCreateRoute: AdminBillingCreateRoute,
+  AdminExpensesRoute: AdminExpensesRoute,
   AdminLoginRoute: AdminLoginRoute,
+  AdminPatientsRoute: AdminPatientsRoute,
+  AdminPatientIdRoute: AdminPatientIdRoute,
+  AdminReportsRoute: AdminReportsRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminTreatmentPlansRoute: AdminTreatmentPlansRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

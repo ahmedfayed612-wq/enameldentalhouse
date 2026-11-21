@@ -3,6 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
   CalendarDays,
   ClipboardList,
+  FileText,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -11,6 +12,11 @@ import {
   Users,
   Wallet,
   X,
+  DollarSign,
+  HardHat,
+  Activity,
+  UserCog,
+  Stethoscope,
 } from "lucide-react";
 import { useAdminAuth, useAdminRole } from "@/lib/admin/auth";
 import { ROLE_LABELS } from "@/lib/admin/types";
@@ -19,11 +25,12 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, soon: false },
   { to: "/admin/appointments", label: "Appointments", icon: CalendarDays, soon: false },
-  { to: "/admin/patients", label: "Patients", icon: Users, soon: true },
-  { to: "/admin/billing", label: "Billing", icon: Receipt, soon: true },
-  { to: "/admin/expenses", label: "Expenses", icon: Wallet, soon: true },
-  { to: "/admin/reports", label: "Reports", icon: ClipboardList, soon: true },
-  { to: "/admin/settings", label: "Settings", icon: Settings, soon: true },
+  { to: "/admin/patients", label: "Patients", icon: Users, soon: false },
+  { to: "/admin/billing", label: "Billing", icon: DollarSign, soon: false },
+  { to: "/admin/expenses", label: "Expenses", icon: Wallet, soon: false },
+  { to: "/admin/reports", label: "Reports", icon: ClipboardList, soon: false },
+  { to: "/admin/treatment-plans", label: "Treatment Plans", icon: Stethoscope, soon: false },
+  { to: "/admin/settings", label: "Settings", icon: Settings, soon: false },
 ] as const;
 
 export function AdminShell({ children }: { children: ReactNode }) {
