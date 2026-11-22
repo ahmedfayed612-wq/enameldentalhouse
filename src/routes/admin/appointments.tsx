@@ -10,6 +10,7 @@ import {
   STATUS_META,
   addDaysYmd,
   cairoParts,
+  fmtSlot12,
   todayYmd,
   type AppointmentStatus,
 } from "@/lib/admin/appointments";
@@ -717,7 +718,7 @@ function CreateAppointmentDialog({
                 <SelectContent>
                   {slots.map((s) => (
                     <SelectItem key={s} value={s}>
-                      {s}
+                      {fmtSlot12(s)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -900,7 +901,7 @@ function EditAppointmentDialog({
                   )}
                   {slots.map((s) => (
                     <SelectItem key={s} value={s}>
-                      {s}
+                      {fmtSlot12(s)}
                     </SelectItem>
                   ))}
                 </SelectContent>

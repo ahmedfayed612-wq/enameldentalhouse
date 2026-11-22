@@ -54,6 +54,22 @@ export function fmtTime(iso: string) {
   return cairoParts(iso).time;
 }
 
+/** "14:30" -> "2:30 PM" */
+export function fmtSlot12(hhmm: string) {
+  const [hStr, mStr] = hhmm.split(":");
+  const h = parseInt(hStr, 10);
+  const m = parseInt(mStr ?? "0", 10);
+  if (Number.isNaN(h)) return hhmm;
+  const period = h < 12 ? "AM" : "PM";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${String(m).padStart(2, "0")} ${period}`;
+}
+
+/** ISO timestamp -> "2:30 PM" (Africa/Cairo) */
+export function fmtTime12(iso: string) {
+  return fmtSlot12(cairoParts(iso).time);
+}
+
 export function addDaysYmd(ymdStr: string, days: number) {
   const d = new Date(`${ymdStr}T12:00:00Z`);
   d.setUTCDate(d.getUTCDate() + days);

@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabase } from "@/lib/supabase";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { RequireAuth } from "@/components/admin/RequireAuth";
-import { STATUS_META, fmtTime, type AppointmentStatus } from "@/lib/admin/appointments";
+import { STATUS_META, fmtTime12, type AppointmentStatus } from "@/lib/admin/appointments";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -217,7 +217,7 @@ function PatientsInner() {
                           {a.services ? (a.services.name_ar ?? a.services.name_en) : "Appointment"}
                         </span>
                         <span className="flex items-center gap-2 text-xs text-muted-foreground">
-                          {fmtTime(a.starts_at)}
+                          {fmtTime12(a.starts_at)}
                           <span
                             className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${STATUS_META[a.status].cls}`}
                           >

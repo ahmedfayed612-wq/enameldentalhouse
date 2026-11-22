@@ -33,3 +33,5 @@ dist-ssr
 
 # Patient data imports contain PII — never commit
 supabase/import/
+.vercel
+.env*

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import {
   NEXT_STATUS,
   STATUS_META,
-  fmtTime,
+  fmtTime12,
   type AppointmentStatus,
 } from "@/lib/admin/appointments";
 
@@ -49,7 +49,7 @@ export function AppointmentItem({
   return (
     <li className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
       <span className="w-14 shrink-0 text-sm font-semibold tabular-nums text-foreground" dir="ltr">
-        {fmtTime(a.starts_at)}
+        {fmtTime12(a.starts_at)}
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-foreground">
