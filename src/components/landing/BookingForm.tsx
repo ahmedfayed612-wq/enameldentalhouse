@@ -42,7 +42,10 @@ export function BookingForm() {
     if (preselectedService) setService(preselectedService);
   }, [preselectedService]);
 
-  const slots = useMemo(() => generateSlots(), []);
+  // Slot grid: prefer the live DB slots (they reflect working hours and
+  // bookings); fall back to the static grid only when Supabase is not
+  // configured or the request fails.
+  const staticSlots = useMemo(() => generateSlots(), []);
 
   // Real availability from the database (falls back to static grid when
   // Supabase isn't configured or the request fails).
@@ -53,7 +56,9 @@ export function BookingForm() {
     enabled: !!dateKey && isSupabaseConfigured,
     staleTime: 30_000,
   });
-  const availableSlots: Set<string> | null = slotData?.ok === true ? new Set(slotData.slots) : null;
+  const dbSlots = slotData?.ok === true ? slotData.slots : null;
+  const displaySlots = dbSlots ?? staticSlots;
+  const availableSlots: Set<string> | null = dbSlots ? new Set(dbSlots) : null;
 
   function validate(): FieldError {
     const e: FieldError = {};
@@ -217,7 +222,7 @@ export function BookingForm() {
                     </p>
                   ) : (
                     <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                      {slots.map((s) => {
+                      {displaySlots.map((s) => {
                         const booked = date
                           ? availableSlots
                             ? !availableSlots.has(s)
