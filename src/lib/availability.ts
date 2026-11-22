@@ -16,7 +16,7 @@ export const CLINIC = {
 
   openHour: 12, // 12:00
   closeHour: 22, // 22:00 (10 PM)
-  slotMinutes: 45,
+  slotMinutes: 60,
 
   /**
    * Manually mark slots as booked, e.g.:
