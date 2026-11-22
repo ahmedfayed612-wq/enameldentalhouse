@@ -1,14 +1,18 @@
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
-import { CLINIC, isOpenDay, isPastDay, ymd } from "@/lib/availability";
+import { CLINIC, isPastDay, ymd } from "@/lib/availability";
 
 type Props = {
   value: Date | null;
   onChange: (d: Date) => void;
+  /** Live closed weekdays (JS getDay) from working_hours; falls back to CLINIC config. */
+  closedWeekdays?: number[];
+  /** Live holiday dates "YYYY-MM-DD"; those days are disabled. */
+  holidayDates?: Set<string>;
 };
 
-export function Calendar({ value, onChange }: Props) {
+export function Calendar({ value, onChange, closedWeekdays, holidayDates }: Props) {
   const { t, lang, dir } = useI18n();
   const [view, setView] = useState(() => {
     const d = value ?? new Date();
@@ -75,10 +79,11 @@ export function Calendar({ value, onChange }: Props) {
         {cells.map((d, i) => {
           if (!d) return <div key={i} className="h-11" />;
           const past = isPastDay(d);
-          const open = isOpenDay(d);
-          const disabled = past || !open;
+          const closed = (closedWeekdays ?? CLINIC.closedWeekdays).includes(d.getDay());
+          const holiday = holidayDates?.has(ymd(d)) ?? false;
+          const disabled = past || closed || holiday;
           const selected = ymd(d) === selectedKey;
-          const isFri = CLINIC.closedWeekdays.includes(d.getDay());
+          const isFri = d.getDay() === 5 && closed;
 
           return (
             <button

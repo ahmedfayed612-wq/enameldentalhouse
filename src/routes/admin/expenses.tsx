@@ -75,11 +75,13 @@ function ExpensesInner() {
   const load = useCallback(async () => {
     if (!supabase) return;
     setLoading(true);
+    const [y, m] = month.split("-").map(Number);
+    const nextMonth = m === 12 ? `${y + 1}-01-01` : `${y}-${String(m + 1).padStart(2, "0")}-01`;
     const { data, error } = await supabase
       .from("expenses")
       .select("id, category, description, amount, spent_at, supplier")
       .gte("spent_at", `${month}-01`)
-      .lt("spent_at", `${month}-32`)
+      .lt("spent_at", nextMonth)
       .order("spent_at", { ascending: false });
     setLoading(false);
     if (error) {

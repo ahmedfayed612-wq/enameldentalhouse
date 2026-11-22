@@ -8,7 +8,7 @@ import { Calendar } from "./Calendar";
 import { CheckCircle2, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
 import type { TKey } from "@/lib/translations";
 import { getDaySlots, submitBooking } from "@/lib/booking.functions";
-import { isSupabaseConfigured } from "@/lib/supabase";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 import {
   CLINIC,
   formatDateLabel,
@@ -59,6 +59,30 @@ export function BookingForm() {
   const dbSlots = slotData?.ok === true ? slotData.slots : null;
   const displaySlots = dbSlots ?? staticSlots;
   const availableSlots: Set<string> | null = dbSlots ? new Set(dbSlots) : null;
+
+  // Live working hours + holidays so the calendar matches the DB rules
+  // (falls back to the static CLINIC config when Supabase is unavailable).
+  const { data: hoursData } = useQuery({
+    queryKey: ["working-hours"],
+    queryFn: async () => {
+      const sb = supabase;
+      if (!sb) return null;
+      const [wh, hol] = await Promise.all([
+        sb.from("working_hours").select("weekday, is_closed"),
+        sb.from("holidays").select("date"),
+      ]);
+      return {
+        closed: ((wh.data as { weekday: number; is_closed: boolean }[] | null) ?? [])
+          .filter((r) => r.is_closed)
+          .map((r) => r.weekday),
+        holidays: new Set(
+          ((hol.data as { date: string }[] | null) ?? []).map((r) => String(r.date).slice(0, 10)),
+        ),
+      };
+    },
+    enabled: isSupabaseConfigured,
+    staleTime: 300_000,
+  });
 
   function validate(): FieldError {
     const e: FieldError = {};
@@ -204,6 +228,8 @@ export function BookingForm() {
                   <h3 className="mb-3 text-sm font-semibold text-foreground">{t("bookStep1")}</h3>
                   <Calendar
                     value={date}
+                    closedWeekdays={hoursData ? hoursData.closed : undefined}
+                    holidayDates={hoursData ? hoursData.holidays : undefined}
                     onChange={(d) => {
                       setDate(d);
                       setTime("");

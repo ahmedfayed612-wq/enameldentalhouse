@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useCallback, useEffect, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
 import { supabase } from "@/lib/supabase";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { RequireAuth } from "@/components/admin/RequireAuth";
-import { STATUS_META, cairoParts, fmtTime, type AppointmentStatus } from "@/lib/admin/appointments";
+import { STATUS_META, fmtTime, type AppointmentStatus } from "@/lib/admin/appointments";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";

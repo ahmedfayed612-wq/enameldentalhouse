@@ -206,15 +206,6 @@ function AppointmentsInner() {
     return map;
   }, [filtered, days, monthDays, view]);
 
-  const monthCounts = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const r of rows) {
-      const key = cairoParts(r.starts_at).ymd;
-      map.set(key, (map.get(key) ?? 0) + 1);
-    }
-    return map;
-  }, [rows]);
-
   const subtitle =
     view === "day"
       ? cursor

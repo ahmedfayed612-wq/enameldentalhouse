@@ -1,8 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 
-const url = process.env.VITE_SUPABASE_URL;
-const anonKey = process.env.VITE_SUPABASE_ANON_KEY;
+// Server functions run on the host's runtime: prefer process.env (injected at
+// runtime by Vercel/Nitro), fall back to import.meta.env (inlined at build).
+const url =
+  process.env.VITE_SUPABASE_URL ?? (import.meta.env.VITE_SUPABASE_URL as string | undefined);
+const anonKey =
+  process.env.VITE_SUPABASE_ANON_KEY ??
+  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined);
 
 function db() {
   if (!url || !anonKey) return null;
