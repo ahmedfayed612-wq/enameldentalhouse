@@ -8,6 +8,7 @@ import {
 
 export type AppointmentRow = {
   id: string;
+  patient_id: string;
   starts_at: string;
   ends_at: string;
   status: AppointmentStatus;
@@ -20,7 +21,7 @@ export type AppointmentRow = {
 };
 
 export const APPOINTMENT_SELECT =
-  "id, starts_at, ends_at, status, source, notes, dentist_id, service_id, patients(full_name, phone), services(code, name_en, name_ar)";
+  "patient_id, id, starts_at, ends_at, status, source, notes, dentist_id, service_id, patients(full_name, phone), services(code, name_en, name_ar)";
 
 export function StatusPill({ status }: { status: AppointmentStatus }) {
   const meta = STATUS_META[status];

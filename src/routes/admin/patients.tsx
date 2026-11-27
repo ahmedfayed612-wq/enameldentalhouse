@@ -68,6 +68,7 @@ function PatientsInner() {
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Patient | null>(null);
   const [detail, setDetail] = useState<ApptRow[]>([]);
+  const [noteHistory, setNoteHistory] = useState<{ id: string; note: string; note_date: string; created_at: string }[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
 
   const load = useCallback(async () => {
@@ -99,6 +100,7 @@ function PatientsInner() {
   useEffect(() => {
     if (!supabase || !selected) {
       setDetail([]);
+      setNoteHistory([]);
       return;
     }
     supabase
@@ -108,6 +110,13 @@ function PatientsInner() {
       .order("starts_at", { ascending: false })
       .limit(20)
       .then(({ data }) => setDetail((data as unknown as ApptRow[]) ?? []));
+
+    supabase
+      .from("patient_notes")
+      .select("id, note, note_date, created_at")
+      .eq("patient_id", selected.id)
+      .order("note_date", { ascending: false })
+      .then(({ data }) => setNoteHistory((data as { id: string; note: string; note_date: string; created_at: string }[]) ?? []));
   }, [selected]);
 
   return (
@@ -224,6 +233,28 @@ function PatientsInner() {
                             {STATUS_META[a.status].label}
                           </span>
                         </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <div>
+                <h3 className="mb-2 text-sm font-semibold text-foreground">Visit notes</h3>
+                {noteHistory.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No visit notes yet.</p>
+                ) : (
+                  <ul className="divide-y divide-border rounded-xl border border-border">
+                    {noteHistory.map((n) => (
+                      <li key={n.id} className="px-3 py-2 text-sm">
+                        <p className="text-sm text-foreground">{n.note}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(n.note_date).toLocaleDateString("en-GB")}{" "}
+                          {n.created_at ? ` · ${new Date(n.created_at).toLocaleString("en-GB", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}` : ""}
+                        </p>
                       </li>
                     ))}
                   </ul>

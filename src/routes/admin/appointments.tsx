@@ -4,13 +4,12 @@ import { useAdminAuth } from "@/lib/admin/auth";
 import { supabase } from "@/lib/supabase";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { RequireAuth } from "@/components/admin/RequireAuth";
-import { getDaySlots } from "@/lib/booking.functions";
+import { showBrowserNotification } from "@/lib/notifications";
 import {
   NEXT_STATUS,
   STATUS_META,
   addDaysYmd,
   cairoParts,
-  fmtSlot12,
   todayYmd,
   type AppointmentStatus,
 } from "@/lib/admin/appointments";
@@ -451,9 +450,8 @@ function CreateAppointmentDialog({
   const [newPhone, setNewPhone] = useState("");
   const [serviceId, setServiceId] = useState("");
   const [date, setDate] = useState(defaultDate);
-  const [time, setTime] = useState("");
-  const [slots, setSlots] = useState<string[]>([]);
-  const [slotMinutes, setSlotMinutes] = useState(45);
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -466,14 +464,6 @@ function CreateAppointmentDialog({
       .eq("active", true)
       .order("sort_order")
       .then(({ data }) => setServices((data as Service[]) ?? []));
-    supabase
-      .from("clinic_settings")
-      .select("slot_minutes")
-      .eq("id", 1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data?.slot_minutes) setSlotMinutes(data.slot_minutes);
-      });
   }, [open]);
 
   useEffect(() => {
@@ -485,20 +475,12 @@ function CreateAppointmentDialog({
       setNewPhone("");
       setServiceId("");
       setDate(defaultDate);
-      setTime("");
+      setStartTime("");
+      setEndTime("");
       setNotes("");
       setError(null);
     }
   }, [open, defaultDate]);
-
-  useEffect(() => {
-    setTime("");
-    if (!date || !open) {
-      setSlots([]);
-      return;
-    }
-    getDaySlots({ data: { date } }).then((r) => setSlots(r.ok ? r.slots : []));
-  }, [date, open]);
 
   useEffect(() => {
     if (!patientQuery.trim() || patient || !supabase) {
@@ -553,35 +535,69 @@ function CreateAppointmentDialog({
       }
     }
 
-    const slotRes = await getDaySlots({ data: { date } });
-    if (!slotRes.ok || !slotRes.slots.includes(time)) {
-      setError("That slot is no longer available — pick another time.");
+    const start = cairoToUtc(date, startTime);
+    const end = cairoToUtc(date, endTime);
+    if (!startTime || !endTime || end <= start) {
+      setError("Pick a valid start time and an end time after it.");
       setSaving(false);
       return;
     }
 
-    const start = cairoToUtc(date, time);
-    const end = new Date(start.getTime() + slotMinutes * 60000).toISOString();
-
-    const { error: aErr } = await supabase.from("appointments").insert({
-      patient_id: patientId,
-      service_id: serviceId || null,
-      dentist_id: dentistId,
-      starts_at: start.toISOString(),
-      ends_at: end,
-      status: "booked",
-      source: "admin",
-      notes: notes.trim() || null,
-    });
+    const { data: created, error: aErr } = await supabase
+      .from("appointments")
+      .insert({
+        patient_id: patientId,
+        service_id: serviceId || null,
+        dentist_id: dentistId,
+        starts_at: start.toISOString(),
+        ends_at: end.toISOString(),
+        status: "booked",
+        source: "admin",
+        notes: notes.trim() || null,
+      })
+      .select("id")
+      .single();
     setSaving(false);
-    if (aErr) {
+    if (aErr || !created) {
       setError(
-        aErr.code === "23P01"
+        (aErr as { code?: string })?.code === "23P01"
           ? "That time overlaps an existing appointment."
           : "Could not create appointment.",
       );
       return;
     }
+
+    // Mirror the note (+ date) to the patient's history when notes exist.
+    if (notes.trim() && patientId) {
+      try {
+        await supabase.from("patient_notes").insert({
+          patient_id: patientId,
+          appointment_id: created.id,
+          note: notes.trim(),
+          note_date: date,
+        });
+      } catch {
+        // Non-fatal: the appointment was saved; note mirroring is best-effort.
+      }
+    }
+
+    // Native browser notification (e.g. Chrome "from the website").
+    try {
+      await showBrowserNotification({
+        title: "New appointment booked",
+        body: `${new Date(start.toISOString()).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })} – ${new Date(end.toISOString()).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}`,
+        tag: `appt-${date}-${startTime}`,
+      });
+    } catch {
+      // Non-fatal: notifications may be blocked by the browser.
+    }
+
     toast.success("Appointment created");
     onOpenChange(false);
     onCreated();
@@ -699,33 +715,34 @@ function CreateAppointmentDialog({
           </div>
 
           {/* Date + time */}
+          <div>
+            <Label className="mb-1 block text-xs">Date</Label>
+            <Input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className={inputCls}
+            />
+          </div>
+
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <Label className="mb-1 block text-xs">Date</Label>
+              <Label className="mb-1 block text-xs">Start time</Label>
               <Input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
                 className={inputCls}
               />
             </div>
             <div>
-              <Label className="mb-1 block text-xs">Time</Label>
-              <Select value={time} onValueChange={setTime}>
-                <SelectTrigger className={inputCls}>
-                  <SelectValue placeholder="Available slots" />
-                </SelectTrigger>
-                <SelectContent>
-                  {slots.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {fmtSlot12(s)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {date && slots.length === 0 && (
-                <p className="mt-1 text-xs text-muted-foreground">No available slots this day.</p>
-              )}
+              <Label className="mb-1 block text-xs">End time</Label>
+              <Input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className={inputCls}
+              />
             </div>
           </div>
 
@@ -771,9 +788,8 @@ function EditAppointmentDialog({
   const [services, setServices] = useState<Service[]>([]);
   const [serviceId, setServiceId] = useState(appointment.service_id ?? "");
   const [date, setDate] = useState(() => cairoParts(appointment.starts_at).ymd);
-  const [time, setTime] = useState(() => cairoParts(appointment.starts_at).time);
-  const [slots, setSlots] = useState<string[]>([]);
-  const [slotMinutes, setSlotMinutes] = useState(45);
+  const [startTime, setStartTime] = useState(() => cairoParts(appointment.starts_at).time);
+  const [endTime, setEndTime] = useState(() => cairoParts(appointment.ends_at).time);
   const [notes, setNotes] = useState(appointment.notes ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -786,44 +802,27 @@ function EditAppointmentDialog({
       .eq("active", true)
       .order("sort_order")
       .then(({ data }) => setServices((data as Service[]) ?? []));
-    supabase
-      .from("clinic_settings")
-      .select("slot_minutes")
-      .eq("id", 1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data?.slot_minutes) setSlotMinutes(data.slot_minutes);
-      });
   }, []);
-
-  useEffect(() => {
-    if (!date) {
-      setSlots([]);
-      return;
-    }
-    getDaySlots({ data: { date } }).then((r) => {
-      const list = r.ok ? r.slots : [];
-      // Keep the current slot selectable even if the RPC doesn't list it
-      // (e.g. it's the appointment's own slot — get_day_slots excludes it anyway
-      // because this appointment still occupies it).
-      setSlots(list);
-    });
-  }, [date]);
 
   async function submit() {
     if (!supabase) return;
     setError(null);
     setSaving(true);
 
-    const start = cairoToUtc(date, time);
-    const end = new Date(start.getTime() + slotMinutes * 60000).toISOString();
+    const start = cairoToUtc(date, startTime);
+    const end = cairoToUtc(date, endTime);
+    if (!startTime || !endTime || end <= start) {
+      setError("Pick a valid start time and an end time after it.");
+      setSaving(false);
+      return;
+    }
 
     const { error: aErr } = await supabase
       .from("appointments")
       .update({
         service_id: serviceId || null,
         starts_at: start.toISOString(),
-        ends_at: end,
+        ends_at: end.toISOString(),
         notes: notes.trim() || null,
         updated_at: new Date().toISOString(),
       })
@@ -837,6 +836,38 @@ function EditAppointmentDialog({
       );
       return;
     }
+
+    // Mirror the note (+ date) to the patient's history when notes exist.
+    if (notes.trim()) {
+      try {
+        await supabase.from("patient_notes").insert({
+          patient_id: appointment.patient_id,
+          appointment_id: appointment.id,
+          note: notes.trim(),
+          note_date: date,
+        });
+      } catch {
+        // Non-fatal: the appointment was saved; note mirroring is best-effort.
+      }
+    }
+
+    // Native browser notification (e.g. Chrome "from the website").
+    try {
+      await showBrowserNotification({
+        title: "Appointment updated",
+        body: `${new Date(start.toISOString()).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })} – ${new Date(end.toISOString()).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+      })}`,
+        tag: `appt-edit-${appointment.id}`,
+      });
+    } catch {
+      // Non-fatal: notifications may be blocked by the browser.
+    }
+
     toast.success("Appointment updated");
     onClose();
     onSaved();
@@ -878,34 +909,34 @@ function EditAppointmentDialog({
             </Select>
           </div>
 
+          <div>
+            <Label className="mb-1 block text-xs">Date</Label>
+            <Input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className={inputCls}
+            />
+          </div>
+
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <Label className="mb-1 block text-xs">Date</Label>
+              <Label className="mb-1 block text-xs">Start time</Label>
               <Input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
                 className={inputCls}
               />
             </div>
             <div>
-              <Label className="mb-1 block text-xs">Time</Label>
-              <Select value={time} onValueChange={setTime}>
-                <SelectTrigger className={inputCls}>
-                  <SelectValue placeholder="Time" />
-                </SelectTrigger>
-                <SelectContent>
-                  {/* Always include current time so it stays selectable */}
-                  {!slots.includes(time) && time && (
-                    <SelectItem value={time}>{time} (current)</SelectItem>
-                  )}
-                  {slots.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {fmtSlot12(s)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label className="mb-1 block text-xs">End time</Label>
+              <Input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className={inputCls}
+              />
             </div>
           </div>
 
